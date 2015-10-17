@@ -1,0 +1,64 @@
+/*
+ * Copyright 2014 CloudMatch.io
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.ticofab.cm_android_sdk.sample;
+
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+
+import io.ticofab.cm_android_sdk.sample.pinchanddrag.PinchAndDragDemoActivity;
+import io.ticofab.cm_android_sdk.sample.pinchandview.PinchAndViewDemoActivity;
+import io.ticofab.cm_android_sdk.sample.swipeandcolor.SwipeAndColorDemoActivity;
+
+/*
+ * From this activity we can choose one of the demos.
+ */
+public class ChooseActivity extends Activity {
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_choose);
+    }
+
+    // from view
+    public void onPinchDemoClick(final View v) {
+        final Intent intent = new Intent(this, PinchAndViewDemoActivity.class);
+        startActivity(intent);
+    }
+
+    // from view
+    public void onPinchAndDragDemoClick(final View v) {
+        final Intent intent = new Intent(this, PinchAndDragDemoActivity.class);
+        startActivity(intent);
+    }
+
+    // from view
+    public void onSwipeAndColorDemoClick(final View v) {
+        final Intent intent = new Intent(this, SwipeAndColorDemoActivity.class);
+        startActivity(intent);
+    }
+
+    // from view
+    public void onAboutClick(final View v) {
+        final FragmentManager fm = getFragmentManager();
+        final AboutDialogFragment aboutDialog = new AboutDialogFragment();
+        aboutDialog.show(fm, "aboutDialog");
+    }
+}

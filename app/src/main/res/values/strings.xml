@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright 2014 CloudMatch.io
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+     http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<resources>
+
+    <string name="app_name">CloudMatch</string>
+    <string name="title_activity_swipe_demo">SwipeDemoActivity</string>
+    <string name="title_activity_pinch_demo">PinchDemoActivity</string>
+    <string name="title_activity_swipe_and_color_demo">SwipeAndColorDemoActivity</string>
+    <string name="title_activity_pinch_and_drag_demo">PinchAndDragDemoActivity</string>
+    <string name="circle">circle</string>
+    <string name="rect">rect</string>
+    <string name="about">About</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="about_dialog_text">For more information about CloudMatch and how you can use it in your applications, visit:</string>
+    <string name="about_dialog_visit_site_button">Go to site</string>
+    <string name="website_url">http://cloudmatch.io</string>
+    <string name="swipeandsendemo">Swipe &amp; Send</string>
+    <string name="pinchandviewdemo">Pinch &amp; View</string>
+    <string name="swipeandcolordemo">Swipe &amp; Color</string>
+    <string name="pinchanddragdemo">Pinch &amp; Drag</string>
+    <string name="swipeandsenddescription">Swipe &amp; Send\n\nSwipe across two or more devices and send them greetings.</string>
+    <string name="pinchandviewdescription">Pinch &amp; View\n\nPinch across two devices and an image appears.</string>
+    <string name="swipeandcolordescription">Swipe &amp; Color\n\nSwipe across 2 to 8 devices and tap the colors!</string>
+    <string name="pinchanddragdescription">Pinch &amp; Drag\n\nPinch across two devices and exchange shapes!</string>
+    <string name="swipe_and_send_received_title">Received:</string>
+    <string name="swipe_and_send_received_text_placeholder">nothing yet...</string>
+    <string name="swipe_and_send_send_button">Send</string>
+    <string name="swipe_and_send_send_hint">Write sth here...</string>
+
+</resources>

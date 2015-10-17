@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    package="io.ticofab.cm_android_sdk.sample"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- permissions for the CloudMatch SDK -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher_cmdemo"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+
+        <activity
+            android:name="io.ticofab.cm_android_sdk.sample.ChooseActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".pinchandview.PinchAndViewDemoActivity"
+            android:label="@string/title_activity_pinch_demo"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".pinchanddrag.PinchAndDragDemoActivity"
+            android:label="@string/title_activity_pinch_and_drag_demo"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".swipeandcolor.SwipeAndColorDemoActivity"
+            android:label="@string/title_activity_swipe_and_color_demo"
+            android:screenOrientation="portrait"/>
+
+        <!-- meta for location services -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="6111000"/>
+
+        <!-- cloudmatch api key -->
+        <meta-data
+            android:name="cloudmatch_api_key"
+            android:value="YOUR_API_KEY_HERE"/>
+
+        <!-- cloudmatch app id -->
+        <meta-data
+            android:name="cloudmatch_app_id"
+            android:value="YOUR_APP_ID_HERE"/>
+
+    </application>
+
+</manifest>
