@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.pinchandview;
+package io.cloudmatch.demo.pinchanddrag;
 
 /*
- * This interface is used to notify the activity that a match has been successfully setup.
+ * Interface for internal communication about the payload exchanges.
  */
-public interface PinchAndViewOnMatchedInterface {
-    String IMAGE_HEIGHT = "imgHeight";
+public interface PinchAndDragDeliveryInterface {
 
-    void onMatched(String groupId, int groupSize, PinchAndViewDemoScreenPositions position);
+    String COIN_TOSS = "cointoss";
+    String SHAPE_DRAG = "shapedrag";
+    String SHAPE_ACQUISITION_ACK = "shapeack";
+    String SHAPE_DRAG_STOPPED = "shapedragstop";
 
-    void onOtherMeasurements(int othersImageHeight);
+    void onCoinToss(Double value);
+
+    void onShapeDragInitiatedOnOtherSide(String shape);
+
+    void onShapeDragStoppedOnOtherSide();
+
+    void onShapeReceivedOnOtherSide(String shape);
+
 }

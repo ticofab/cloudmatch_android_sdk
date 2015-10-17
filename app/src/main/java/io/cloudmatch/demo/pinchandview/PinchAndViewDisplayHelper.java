@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.pinchandview;
+package io.cloudmatch.demo.pinchandview;
 
 import android.content.Context;
 import android.graphics.Point;

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.swipeandcolor;
+package io.cloudmatch.demo.swipeandcolor;
 
 /*
- * Interface to notify the listener that we have been matched in a group.
+ * Interface used to notify a listener that a rotation message has been received
  */
-public interface SwipeAndColorDemoMatchedInterface {
-    void onMatched(String groupId, int groupSize, int myIdInGroup);
+public interface SwipeAndColorDemoDeliveryInterface {
+    String ROTATION_MESSAGE = "rotation";
 
-    void onMatcheeLeft();
+    void onRotateMessage();
 }

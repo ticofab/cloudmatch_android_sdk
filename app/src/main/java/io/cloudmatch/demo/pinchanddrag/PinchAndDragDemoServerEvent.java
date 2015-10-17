@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.swipeandcolor;
+package io.cloudmatch.demo.pinchanddrag;
 
 import android.app.Activity;
 import android.util.Log;
@@ -31,25 +31,26 @@ import io.ticofab.cm_android_sdk.library.models.messages.MatcheeLeftMessage;
 import io.ticofab.cm_android_sdk.library.models.responses.DeliveryResponse;
 import io.ticofab.cm_android_sdk.library.models.responses.LeaveGroupResponse;
 import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
-import io.ticofab.cm_android_sdk.sample.R;
+import io.cloudmatch.demo.R;
 
 /*
- * Implementation of the OnCloudMatchEvent interface from the CloudMatch. This class also takes two listeners,
- * see constructor. As usual, many callbacks are not implemented as they're not required in this application.
+ * Implementation of the OnCloudMatchEvent interface from CloudMatch. Will receive callbacks upon server events.
+ * This implementation also gets the context and two interfaces in the constructor.
+ * A lot of these methods are not used in this application and are therefore left empty. 
  */
-public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
-    private static final String TAG = SwipeAndColorDemoServerEvent.class.getSimpleName();
+public class PinchAndDragDemoServerEvent implements OnCloudMatchEvent {
+    private static final String TAG = PinchAndDragDemoServerEvent.class.getSimpleName();
 
     private final Activity mActivity;
-    private final SwipeAndColorDemoMatchedInterface mMatchedListener;
-    private final SwipeAndColorDemoDeliveryInterface mRotationListener;
+    private final PinchAndDragMatchedInterface mMatchedListener;
+    private final PinchAndDragDeliveryInterface mDeliveryListener;
 
-    public SwipeAndColorDemoServerEvent(final Activity activity,
-                                        final SwipeAndColorDemoMatchedInterface matchedInterface,
-                                        final SwipeAndColorDemoDeliveryInterface rotationListener) {
+    public PinchAndDragDemoServerEvent(final Activity activity,
+                                       final PinchAndDragMatchedInterface matchedInterface,
+                                       final PinchAndDragDeliveryInterface deliveryInterface) {
         mActivity = activity;
         mMatchedListener = matchedInterface;
-        mRotationListener = rotationListener;
+        mDeliveryListener = deliveryInterface;
     }
 
     @Override
@@ -69,24 +70,20 @@ public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
         Log.d(TAG, "onConnectionError");
         String msg = "connection error";
         if (error instanceof CloudMatchInvalidCredentialException) {
-            msg = "The API Key and APP Id that you are using seem to be incorrect."
-                    + " Are you running the latest version of CloudMatch Demo?";
+            msg = "The API Key and APP Id that you are using seem to be incorrect. Are you running the latest version of CloudMatch Demo?";
         } else if (error instanceof CloudMatchConnectionException) {
             msg = error.getMessage();
         }
         Toast.makeText(mActivity, msg, Toast.LENGTH_LONG).show();
     }
 
-    // This method simply notifies the listener if the match was successful.
+    // if a successful match is established, will notify the listener through the interface.
     @Override
     public void onMatchResponse(final MatchResponse response) {
         Log.d(TAG, "onMatchResponse: " + response);
         switch (response.mOutcome) {
             case ok:
-                final int groupSize = response.mGroupSize;
-                final int myIdInGroup = response.mMyIdInGroup;
-                final String groupId = response.mGroupId;
-                mMatchedListener.onMatched(groupId, groupSize, myIdInGroup);
+                mMatchedListener.onMatched(response.mGroupId);
                 break;
             case fail:
                 // is there a reason?
@@ -126,17 +123,33 @@ public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
         // do nothing
     }
 
-    // This callback will notify the listener if a rotation message has been received.
+    // When a new delivery arrives, this method parses it and notifies the listener through the proper interface
+    // call.
     @Override
     public void onMatcheeDelivery(final MatcheeDelivery delivery) {
         try {
             final JSONObject json = new JSONObject(delivery.mPayload);
-            if (json.has(SwipeAndColorDemoDeliveryInterface.ROTATION_MESSAGE)) {
-                Log.d(TAG, "matchee delivery: rotation");
-                mRotationListener.onRotateMessage();
+            if (json.has(PinchAndDragDeliveryInterface.COIN_TOSS)) {
+                final Double coinToss = json.getDouble(PinchAndDragDeliveryInterface.COIN_TOSS);
+                Log.d(TAG, "matchee delivery: CoinToss, " + coinToss);
+                mDeliveryListener.onCoinToss(coinToss);
+            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_DRAG)) {
+                final String shape = json.getString(PinchAndDragDeliveryInterface.SHAPE_DRAG);
+                Log.d(TAG, "matchee delivery, shape drag other side: " + shape);
+                mDeliveryListener.onShapeDragInitiatedOnOtherSide(shape);
+            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_ACQUISITION_ACK)) {
+                Log.d(TAG, "matchee delivery, shape acquisition other side.");
+                final String shape = json.getString(PinchAndDragDeliveryInterface.SHAPE_ACQUISITION_ACK);
+                mDeliveryListener.onShapeReceivedOnOtherSide(shape);
+            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_DRAG_STOPPED)) {
+                Log.d(TAG, "matchee delivery, shape drag stopped other side.");
+                mDeliveryListener.onShapeDragStoppedOnOtherSide();
+            } else {
+                Log.d(TAG, "matchee delivery, not sure what it was: " + delivery);
             }
         } catch (final JSONException e) {
-            Log.d(TAG, "JSONException! " + e);
+            Log.d(TAG, "JSONException caught: " + e);
+            // TODO: show toast?
         }
     }
 

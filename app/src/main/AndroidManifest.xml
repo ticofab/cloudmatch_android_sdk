@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="io.ticofab.cm_android_sdk.sample"
+    package="io.cloudmatch.demo"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- permissions for the CloudMatch SDK -->
@@ -15,7 +15,7 @@
         android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
 
         <activity
-            android:name="io.ticofab.cm_android_sdk.sample.ChooseActivity"
+            android:name="io.cloudmatch.demo.ChooseActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>

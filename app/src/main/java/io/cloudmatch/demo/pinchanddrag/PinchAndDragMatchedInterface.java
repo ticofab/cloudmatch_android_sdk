@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.pinchanddrag;
+package io.cloudmatch.demo.pinchanddrag;
 
 /*
  * Interface to notify the activity of an established match.

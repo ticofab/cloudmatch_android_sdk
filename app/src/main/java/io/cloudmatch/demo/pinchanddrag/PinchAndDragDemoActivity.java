@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.pinchanddrag;
+package io.cloudmatch.demo.pinchanddrag;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -46,6 +46,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import java.util.Random;
 
+import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.CloudMatch;
 import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
@@ -54,7 +55,6 @@ import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedExce
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
-import io.ticofab.cm_android_sdk.sample.R;
 
 /*
  * This is the most complex demo. There are two phases: the first phase is when two devices are matched, by pinching
@@ -237,7 +237,7 @@ public class PinchAndDragDemoActivity extends Activity {
         }
     }
 
-    public void initCloudMatch(){
+    public void initCloudMatch() {
         // initializes the CloudMatch. In this case we also immediately connect, but it could be done also at a
         // different stage.
         try {

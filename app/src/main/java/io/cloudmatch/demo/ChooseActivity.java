@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample;
+package io.cloudmatch.demo;
 
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -22,9 +22,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import io.ticofab.cm_android_sdk.sample.pinchanddrag.PinchAndDragDemoActivity;
-import io.ticofab.cm_android_sdk.sample.pinchandview.PinchAndViewDemoActivity;
-import io.ticofab.cm_android_sdk.sample.swipeandcolor.SwipeAndColorDemoActivity;
+import io.cloudmatch.demo.pinchanddrag.PinchAndDragDemoActivity;
+import io.cloudmatch.demo.pinchandview.PinchAndViewDemoActivity;
+import io.cloudmatch.demo.swipeandcolor.SwipeAndColorDemoActivity;
 
 /*
  * From this activity we can choose one of the demos.

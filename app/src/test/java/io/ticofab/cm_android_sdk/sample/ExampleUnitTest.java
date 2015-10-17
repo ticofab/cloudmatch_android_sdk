@@ -1,4 +1,4 @@
-package io.ticofab.cm_android_sdk.sample;
+package io.cloudmatch.demo;
 
 import org.junit.Test;
 

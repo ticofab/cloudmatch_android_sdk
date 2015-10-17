@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.swipeandcolor;
+package io.cloudmatch.demo.swipeandcolor;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -37,7 +37,7 @@ import org.json.JSONObject;
 
 import io.ticofab.cm_android_sdk.library.CloudMatch;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
-import io.ticofab.cm_android_sdk.sample.R;
+import io.cloudmatch.demo.R;
 
 /*
  * This demo lets you match up to 8 devices using a single swipe, and each one will display a different color.

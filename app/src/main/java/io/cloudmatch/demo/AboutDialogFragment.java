@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample;
+package io.cloudmatch.demo;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

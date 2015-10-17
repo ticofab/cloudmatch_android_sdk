@@ -1,4 +1,4 @@
-package io.ticofab.cm_android_sdk.sample.pinchandview;
+package io.cloudmatch.demo.pinchandview;
 
 import android.util.Log;
 
@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 import io.ticofab.cm_android_sdk.library.CloudMatch;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
-import io.ticofab.cm_android_sdk.sample.pinchanddrag.PinchAndDragDeliveryHelper;
+import io.cloudmatch.demo.pinchanddrag.PinchAndDragDeliveryHelper;
 
 public class PinchAndViewDeliveryHelper {
     private static final String TAG = PinchAndDragDeliveryHelper.class.getSimpleName();

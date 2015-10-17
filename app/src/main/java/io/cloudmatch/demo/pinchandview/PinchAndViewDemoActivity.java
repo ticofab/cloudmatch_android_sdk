@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.pinchandview;
+package io.cloudmatch.demo.pinchandview;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -49,7 +49,7 @@ import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedExce
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
-import io.ticofab.cm_android_sdk.sample.R;
+import io.cloudmatch.demo.R;
 
 /*
  * This demo lets the user pair two devices, pinching them across the long side. The devices

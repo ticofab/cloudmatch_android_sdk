@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.swipeandcolor;
+package io.cloudmatch.demo.swipeandcolor;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -35,7 +35,7 @@ import io.ticofab.cm_android_sdk.library.consts.Movements;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchSwipeViewAllSides;
-import io.ticofab.cm_android_sdk.sample.R;
+import io.cloudmatch.demo.R;
 
 /*
  * This layout will take care of managing the swipe drawing on screen and will listen to the

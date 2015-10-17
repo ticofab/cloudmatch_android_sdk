@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.pinchandview;
+package io.cloudmatch.demo.pinchandview;
 
 /*
  * Definitions of positions where a device can find itself in this app. 

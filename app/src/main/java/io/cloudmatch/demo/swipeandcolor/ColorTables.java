@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.sample.swipeandcolor;
+package io.cloudmatch.demo.swipeandcolor;
 
 import android.graphics.Color;
 
