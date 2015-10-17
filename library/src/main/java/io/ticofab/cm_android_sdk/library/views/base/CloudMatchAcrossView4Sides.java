@@ -23,8 +23,6 @@ import io.ticofab.cm_android_sdk.library.consts.Areas;
 
 /**
  * Abstract specification of CloudMatchAcrossView which enables communication on all sides of the screen.
- *
- * @author @ticofab
  */
 abstract public class CloudMatchAcrossView4Sides extends CloudMatchAcrossView {
 

@@ -25,8 +25,6 @@ import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 
 /**
  * Abstract custom view providing the basic functionality of GesturMatch views.
- *
- * @author @ticofab
  */
 public abstract class CloudMatchView extends View {
 

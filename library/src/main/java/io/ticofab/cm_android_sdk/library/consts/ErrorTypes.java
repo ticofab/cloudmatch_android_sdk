@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Possible error types.
- * 
- * @author @ticofab
- * 
  */
 public enum ErrorTypes {
     invalidInput, invalidCredentials, server_error, bad_json_error

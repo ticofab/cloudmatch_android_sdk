@@ -23,8 +23,6 @@ import android.view.WindowManager;
 
 /**
  * Helper to deal with the device's screen technicalities.
- *
- * @author @ticofab
  */
 public class PinchAndViewDisplayHelper {
 

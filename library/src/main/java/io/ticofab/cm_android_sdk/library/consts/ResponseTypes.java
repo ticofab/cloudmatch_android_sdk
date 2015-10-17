@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Possible types for a server response to a client request.
- * 
- * @author @ticofab
- * 
  */
 public enum ResponseTypes {
     unknown, match, matchInGroup, leaveGroup, disconnect, delivery

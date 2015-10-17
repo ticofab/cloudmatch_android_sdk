@@ -28,9 +28,6 @@ import io.ticofab.cm_android_sdk.library.consts.ResponseTypes;
 
 /**
  * Model of a match input to send to the server.
- * 
- * @author @ticofab
- * 
  */
 abstract public class MatchInput {
 

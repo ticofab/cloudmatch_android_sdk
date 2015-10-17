@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Description of movements that occurred on the device.
- * 
- * @author @ticofab
- * 
  */
 public enum Movements {
     innertop, innerleft, innerright, innerbottom,

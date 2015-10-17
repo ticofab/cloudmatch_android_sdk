@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Possible outcomes to a client request.
- * 
- * @author @ticofab
- * 
  */
 public enum Outcomes {
     unknown, ok, fail

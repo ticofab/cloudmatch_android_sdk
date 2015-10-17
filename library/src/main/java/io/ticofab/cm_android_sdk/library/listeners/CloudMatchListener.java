@@ -25,8 +25,6 @@ import io.ticofab.cm_android_sdk.library.interfaces.OnServerMessage;
 
 /**
  * SDK's implementation of the WebSocket Listener interface to receive messages from the backend.
- *
- * @author @ticofab
  */
 public class CloudMatchListener implements WebSocketClient.Listener {
 

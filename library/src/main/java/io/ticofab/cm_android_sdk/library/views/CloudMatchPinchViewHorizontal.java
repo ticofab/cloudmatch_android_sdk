@@ -25,8 +25,6 @@ import io.ticofab.cm_android_sdk.library.views.base.CloudMatchAcrossViewHorizont
 /**
  * Custom view to be embedded by the client in its layouts. Will provide Pinch interaction on the horizontal sides
  * of the device screen.
- *
- * @author @ticofab
  */
 public class CloudMatchPinchViewHorizontal extends CloudMatchAcrossViewHorizontal {
 

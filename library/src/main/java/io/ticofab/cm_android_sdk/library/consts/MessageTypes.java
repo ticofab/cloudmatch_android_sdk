@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Possible types of server messages regarding inter-client communication.
- * 
- * @author @ticofab
- * 
  */
 public enum MessageTypes {
     delivery, matcheeLeft

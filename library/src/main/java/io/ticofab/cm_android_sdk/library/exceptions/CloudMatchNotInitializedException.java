@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.exceptions;
 
 /**
  * Thrown when the CloudMatch instance hasn't been initialized before usage.
- * 
- * @author @ticofab
- * 
  */
 public class CloudMatchNotInitializedException extends RuntimeException {
     private static final long serialVersionUID = 1L;

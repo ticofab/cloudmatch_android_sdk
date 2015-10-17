@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Possible kinds of a JSON message coming from the server.
- * 
- * @author @ticofab
- * 
  */
 public enum Kinds {
     response, message, error

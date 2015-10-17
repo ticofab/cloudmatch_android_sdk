@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.exceptions;
 
 /**
  * Thrown when Location Services are not available.
- * 
- * @author @ticofab
- * 
  */
 public class LocationServicesUnavailableException extends RuntimeException {
     private static final long serialVersionUID = 1L;

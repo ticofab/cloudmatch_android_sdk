@@ -23,8 +23,6 @@ import org.json.JSONObject;
 
 /**
  * Represents a device in the PositionScheme matrix.
- *
- * @author @ticofab
  */
 public class DeviceInScheme {
     private static final String JSON_LABEL_ID = "id";

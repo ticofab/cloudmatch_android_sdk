@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Possible reasons in response to a leave request input from the client.
- * 
- * @author @ticofab
- * 
  */
 public enum LeaveGroupReasons {
     unknown, notPartOfAnyGroup, notPartOfThisGroup

@@ -18,10 +18,7 @@ package io.ticofab.cm_android_sdk.library.interfaces;
 
 /**
  * Interface which is internally used by the SDK to receive raw messages from the server and interpret them.
- * 
- * @author @ticofab
- * 
  */
 public interface OnServerMessage {
-    public void onServerMessage(String message);
+    void onServerMessage(String message);
 }

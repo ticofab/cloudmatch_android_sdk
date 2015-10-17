@@ -24,8 +24,6 @@ import java.util.ArrayList;
 
 /**
  * Representation of a matrix of devices, to show their respective positions.
- *
- * @author @ticofab
  */
 public class PositionScheme {
     public static final String JSON_LABEL_WIDTH = "width";

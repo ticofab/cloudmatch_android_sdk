@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * JSON labels for general purpose.
- * 
- * @author @ticofab
- * 
  */
 public class JsonLabels {
     // top level

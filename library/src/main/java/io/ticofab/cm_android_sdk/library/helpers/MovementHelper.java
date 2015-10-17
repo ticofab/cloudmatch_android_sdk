@@ -22,8 +22,6 @@ import io.ticofab.cm_android_sdk.library.consts.Movements;
 
 /**
  * Helper with the logic to interpret gestures into movements.
- *
- * @author @ticofab
  */
 public class MovementHelper {
 

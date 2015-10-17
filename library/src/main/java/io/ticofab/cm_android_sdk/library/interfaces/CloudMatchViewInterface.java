@@ -24,19 +24,16 @@ import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 
 /**
  * Interface used in the CloudMatch custom views to communicate with the client using them.
- * 
- * @author @ticofab
- * 
  */
 public interface CloudMatchViewInterface {
-    public void onMovementDetection(Movements movement, MovementType movementType, PointF swipeStart,
-                                    PointF swipeEnd);
+    void onMovementDetection(Movements movement, MovementType movementType, PointF swipeStart,
+                             PointF swipeEnd);
 
-    public boolean isGestureValid();
+    boolean isGestureValid();
 
-    public GesturePurposeInfo getGesturePurposeInfo();
+    GesturePurposeInfo getGesturePurposeInfo();
 
-    public String getEqualityParam();
+    String getEqualityParam();
 
-    public void onError(RuntimeException e);
+    void onError(RuntimeException e);
 }

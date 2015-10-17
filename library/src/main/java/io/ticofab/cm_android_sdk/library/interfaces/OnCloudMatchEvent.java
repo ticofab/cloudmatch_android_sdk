@@ -24,8 +24,6 @@ import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
 
 /**
  * Interface used to notify the client of a server event.
- *
- * @author @ticofab
  */
 public interface OnCloudMatchEvent {
     void onConnectionOpen();

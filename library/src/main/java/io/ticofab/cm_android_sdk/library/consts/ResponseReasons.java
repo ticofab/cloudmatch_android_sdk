@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Possible reasons to a client request to the server.
- * 
- * @author @ticofab
- * 
  */
 public enum ResponseReasons {
     unknown, uncertain, timeout, error

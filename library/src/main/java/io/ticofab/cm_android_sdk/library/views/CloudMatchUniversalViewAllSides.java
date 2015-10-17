@@ -24,9 +24,6 @@ import io.ticofab.cm_android_sdk.library.views.base.CloudMatchAcrossView4Sides;
 
 /**
  * Custom view to be embedded by the client in its layouts. Will provide Pinch interaction on all screen sides.
- * 
- * @author @ticofab
- * 
  */
 public class CloudMatchUniversalViewAllSides extends CloudMatchAcrossView4Sides {
 

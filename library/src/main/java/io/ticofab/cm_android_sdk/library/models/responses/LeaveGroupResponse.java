@@ -25,8 +25,6 @@ import io.ticofab.cm_android_sdk.library.consts.Outcomes;
 
 /**
  * Server response to a client's action to leave its current group.
- *
- * @author @ticofab
  */
 public class LeaveGroupResponse {
     public Outcomes mOutcome = Outcomes.unknown;

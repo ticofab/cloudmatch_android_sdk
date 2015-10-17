@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Criteria used by the view to tell the server which kind of matching should happen between devices.
- * 
- * @author @ticofab
- * 
  */
 public enum Criteria {
     undefined, swipe, pinch, universal

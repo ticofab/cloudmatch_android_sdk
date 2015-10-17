@@ -23,8 +23,6 @@ import io.ticofab.cm_android_sdk.library.consts.JsonLabels;
 
 /**
  * Internal model used by the SDK to deal with chunked deliveries.
- *
- * @author @ticofab
  */
 public class MatcheeDeliveryMessage {
     public Integer mSenderMatchee;

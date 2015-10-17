@@ -44,9 +44,6 @@ import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
 /**
  * Deals with incoming messages from the backend. It interprets the string messages sent through the WebSocket
  * connection and then triggers the appropriate callback on the client side.
- * 
- * @author @ticofab
- * 
  */
 public class ServerMessagesHandler implements OnServerMessage {
     private final OnCloudMatchEvent mServerEventsHandler;
@@ -76,176 +73,176 @@ public class ServerMessagesHandler implements OnServerMessage {
             final Kinds kind = Kinds.valueOf(msgJson.getString(JsonLabels.KIND));
 
             switch (kind) {
-            case response:
-                final ResponseTypes inputType = ResponseTypes.valueOf(msgJson.getString(JsonLabels.TYPE));
-                switch (inputType) {
-                case match:
-                case matchInGroup:
-                    final MatchResponse matchR = MatchResponse.fromJson(msgJson);
-                    mActivity.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            mServerEventsHandler.onMatchResponse(matchR);
-                        }
-                    });
-
-                    break;
-                case leaveGroup:
-                    final LeaveGroupResponse leaveGroupR = LeaveGroupResponse.fromJson(msgJson);
-                    mActivity.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            mServerEventsHandler.onLeaveGroupResponse(leaveGroupR);
-                        }
-                    });
-                    break;
-                case delivery:
-                    final DeliveryResponse deliveryR = DeliveryResponse.fromJson(msgJson);
-                    mActivity.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            mServerEventsHandler.onDeliveryResponse(deliveryR);
-                        }
-                    });
-                    break;
-                default:
-                    break;
-                }
-
-                break;
-
-            case message:
-                final MessageTypes messageType = MessageTypes.valueOf(msgJson.getString(JsonLabels.TYPE));
-                switch (messageType) {
-                case delivery:
-                    final MatcheeDeliveryMessage deliveryMsg = MatcheeDeliveryMessage.fromJson(msgJson);
-
-                    // TODO: put all this in a separate something!
-                    // deal with situation where one chunk is lost: something like, when one partial item is
-                    // received, start a watch dog which will delete the whole thing and send a "failed" message to
-                    // the client if it hasn't been completed in the meantime.
-
-                    // here check: is this message part of a partial delivery?
-                    if (deliveryMsg.mChunkNr == -1 && deliveryMsg.mTotalChunks != -1) {
-                        final MatcheeDelivery delivery = new MatcheeDelivery();
-                        delivery.mSenderMatchee = deliveryMsg.mSenderMatchee;
-                        delivery.mPayload = deliveryMsg.mPayload;
-                        delivery.mGroupId = deliveryMsg.mGroupId;
-                        delivery.mTag = deliveryMsg.mTag;
-                        mActivity.runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                mServerEventsHandler.onMatcheeDelivery(delivery);
-                            }
-                        });
-                    } else {
-                        // here, put all chunks in one place and send a "progress indication" notification
-                        final String id = deliveryMsg.mDeliveryId;
-                        if (!mPartialDeliveries.containsKey(id)) {
-                            mPartialDeliveries.put(id, new ArrayList<String>(deliveryMsg.mTotalChunks));
-                        }
-
-                        final ArrayList<String> receivedChunks = mPartialDeliveries.get(id);
-                        receivedChunks.add(deliveryMsg.mChunkNr, deliveryMsg.mPayload);
-                        final String tag = deliveryMsg.mTag;
-
-                        if (receivedChunks.size() == deliveryMsg.mTotalChunks) {
+                case response:
+                    final ResponseTypes inputType = ResponseTypes.valueOf(msgJson.getString(JsonLabels.TYPE));
+                    switch (inputType) {
+                        case match:
+                        case matchInGroup:
+                            final MatchResponse matchR = MatchResponse.fromJson(msgJson);
                             mActivity.runOnUiThread(new Runnable() {
 
                                 @Override
                                 public void run() {
-                                    mServerEventsHandler.onMatcheeDeliveryProgress(tag, 100);
+                                    mServerEventsHandler.onMatchResponse(matchR);
                                 }
                             });
 
-                            // 1. remove object from hash map
-                            mPartialDeliveries.remove(id);
-
-                            // 2. send whole message to client
-                            String completePayload = "";
-                            for (final String chunk : receivedChunks) {
-                                completePayload += chunk;
-                            }
-                            final MatcheeDelivery delivery = new MatcheeDelivery();
-                            delivery.mSenderMatchee = deliveryMsg.mSenderMatchee;
-                            delivery.mPayload = completePayload;
-                            delivery.mGroupId = deliveryMsg.mGroupId;
-                            delivery.mTag = deliveryMsg.mTag;
+                            break;
+                        case leaveGroup:
+                            final LeaveGroupResponse leaveGroupR = LeaveGroupResponse.fromJson(msgJson);
                             mActivity.runOnUiThread(new Runnable() {
 
                                 @Override
                                 public void run() {
-                                    mServerEventsHandler.onMatcheeDelivery(delivery);
+                                    mServerEventsHandler.onLeaveGroupResponse(leaveGroupR);
                                 }
                             });
-                        } else {
-                            // 1. put object back into hash map
-                            mPartialDeliveries.put(id, receivedChunks);
-
-                            // 2. deliver progress message to client
-                            final int progress = 100 * receivedChunks.size() / deliveryMsg.mTotalChunks;
+                            break;
+                        case delivery:
+                            final DeliveryResponse deliveryR = DeliveryResponse.fromJson(msgJson);
                             mActivity.runOnUiThread(new Runnable() {
 
                                 @Override
                                 public void run() {
-                                    mServerEventsHandler.onMatcheeDeliveryProgress(tag, progress);
+                                    mServerEventsHandler.onDeliveryResponse(deliveryR);
                                 }
                             });
-                        }
+                            break;
+                        default:
+                            break;
                     }
 
                     break;
-                case matcheeLeft:
-                    final MatcheeLeftMessage leftMsg = MatcheeLeftMessage.fromJson(msgJson);
-                    mActivity.runOnUiThread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            mServerEventsHandler.onMatcheeLeft(leftMsg);
-                        }
-                    });
+                case message:
+                    final MessageTypes messageType = MessageTypes.valueOf(msgJson.getString(JsonLabels.TYPE));
+                    switch (messageType) {
+                        case delivery:
+                            final MatcheeDeliveryMessage deliveryMsg = MatcheeDeliveryMessage.fromJson(msgJson);
+
+                            // TODO: put all this in a separate something!
+                            // deal with situation where one chunk is lost: something like, when one partial item is
+                            // received, start a watch dog which will delete the whole thing and send a "failed" message to
+                            // the client if it hasn't been completed in the meantime.
+
+                            // here check: is this message part of a partial delivery?
+                            if (deliveryMsg.mChunkNr == -1 && deliveryMsg.mTotalChunks != -1) {
+                                final MatcheeDelivery delivery = new MatcheeDelivery();
+                                delivery.mSenderMatchee = deliveryMsg.mSenderMatchee;
+                                delivery.mPayload = deliveryMsg.mPayload;
+                                delivery.mGroupId = deliveryMsg.mGroupId;
+                                delivery.mTag = deliveryMsg.mTag;
+                                mActivity.runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        mServerEventsHandler.onMatcheeDelivery(delivery);
+                                    }
+                                });
+                            } else {
+                                // here, put all chunks in one place and send a "progress indication" notification
+                                final String id = deliveryMsg.mDeliveryId;
+                                if (!mPartialDeliveries.containsKey(id)) {
+                                    mPartialDeliveries.put(id, new ArrayList<String>(deliveryMsg.mTotalChunks));
+                                }
+
+                                final ArrayList<String> receivedChunks = mPartialDeliveries.get(id);
+                                receivedChunks.add(deliveryMsg.mChunkNr, deliveryMsg.mPayload);
+                                final String tag = deliveryMsg.mTag;
+
+                                if (receivedChunks.size() == deliveryMsg.mTotalChunks) {
+                                    mActivity.runOnUiThread(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            mServerEventsHandler.onMatcheeDeliveryProgress(tag, 100);
+                                        }
+                                    });
+
+                                    // 1. remove object from hash map
+                                    mPartialDeliveries.remove(id);
+
+                                    // 2. send whole message to client
+                                    String completePayload = "";
+                                    for (final String chunk : receivedChunks) {
+                                        completePayload += chunk;
+                                    }
+                                    final MatcheeDelivery delivery = new MatcheeDelivery();
+                                    delivery.mSenderMatchee = deliveryMsg.mSenderMatchee;
+                                    delivery.mPayload = completePayload;
+                                    delivery.mGroupId = deliveryMsg.mGroupId;
+                                    delivery.mTag = deliveryMsg.mTag;
+                                    mActivity.runOnUiThread(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            mServerEventsHandler.onMatcheeDelivery(delivery);
+                                        }
+                                    });
+                                } else {
+                                    // 1. put object back into hash map
+                                    mPartialDeliveries.put(id, receivedChunks);
+
+                                    // 2. deliver progress message to client
+                                    final int progress = 100 * receivedChunks.size() / deliveryMsg.mTotalChunks;
+                                    mActivity.runOnUiThread(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            mServerEventsHandler.onMatcheeDeliveryProgress(tag, progress);
+                                        }
+                                    });
+                                }
+                            }
+
+                            break;
+                        case matcheeLeft:
+                            final MatcheeLeftMessage leftMsg = MatcheeLeftMessage.fromJson(msgJson);
+                            mActivity.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    mServerEventsHandler.onMatcheeLeft(leftMsg);
+                                }
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+
                     break;
+
+                case error:
+                    final ErrorTypes errorType = ErrorTypes.valueOf(msgJson.getString(JsonLabels.TYPE));
+
+                    switch (errorType) {
+                        case server_error:
+                            mActivity.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    mServerEventsHandler.onConnectionError(new CloudMatchConnectionException());
+                                }
+                            });
+                            break;
+                        case invalidCredentials:
+                            mActivity.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    mServerEventsHandler.onConnectionError(new CloudMatchInvalidCredentialException());
+                                }
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+
                 default:
+                    // TODO: error, we shouldn't get here
                     break;
-                }
-
-                break;
-
-            case error:
-                final ErrorTypes errorType = ErrorTypes.valueOf(msgJson.getString(JsonLabels.TYPE));
-
-                switch (errorType) {
-                case server_error:
-                    mActivity.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            mServerEventsHandler.onConnectionError(new CloudMatchConnectionException());
-                        }
-                    });
-                    break;
-                case invalidCredentials:
-                    mActivity.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            mServerEventsHandler.onConnectionError(new CloudMatchInvalidCredentialException());
-                        }
-                    });
-                    break;
-                default:
-                    break;
-                }
-
-                break;
-
-            default:
-                // TODO: error, we shouldn't get here
-                break;
             }
 
         } catch (final JSONException e) {

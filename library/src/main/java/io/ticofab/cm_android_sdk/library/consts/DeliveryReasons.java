@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Possible reasons used in a DeliveryOutcome response.
- * 
- * @author @ticofab
- * 
  */
 public enum DeliveryReasons {
     unknown, notDelivered

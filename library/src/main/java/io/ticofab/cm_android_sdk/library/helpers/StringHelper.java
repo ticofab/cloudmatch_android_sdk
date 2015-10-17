@@ -25,9 +25,6 @@ import java.util.ArrayList;
 
 /**
  * Helper to split a generic string into chunks.
- * 
- * @author @ticofab
- * 
  */
 public class StringHelper {
     public static ArrayList<String> splitEqually(final String str, final int chunkSize) {

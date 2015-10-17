@@ -23,8 +23,6 @@ import io.ticofab.cm_android_sdk.library.consts.JsonLabels;
 
 /**
  * Model to notify that one client has left the previously established group.
- *
- * @author @ticofab
  */
 public class MatcheeLeftMessage {
     public Integer mLeaverMatchee;

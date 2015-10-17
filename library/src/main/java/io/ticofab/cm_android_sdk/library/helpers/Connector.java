@@ -27,9 +27,6 @@ import io.ticofab.cm_android_sdk.library.consts.ServerConsts;
 
 /**
  * Helper to connect the CloudMatch instance to the backend.
- *
- * @author @ticofab
- *
  */
 public class Connector {
     private static final String CONNECTION_PARAM_APIKEY = "apiKey";

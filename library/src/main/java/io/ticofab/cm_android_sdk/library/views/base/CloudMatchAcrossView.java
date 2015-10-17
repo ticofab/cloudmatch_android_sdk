@@ -35,9 +35,6 @@ import io.ticofab.cm_android_sdk.library.models.inputs.GroupCreateMatchInput;
 /**
  * Abstract implementation of CloudMatchView, providing the functionality for interaction when the gesture happens
  * across two screens adjacent to each other.
- * 
- * @author @ticofab
- * 
  */
 public abstract class CloudMatchAcrossView extends CloudMatchView {
 
@@ -64,27 +61,27 @@ public abstract class CloudMatchAcrossView extends CloudMatchView {
         final float drawingY = event.getY();
 
         switch (event.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-            mStartArea = getArea(drawingX, drawingY);
-            mStartPoint = new PointF(drawingX, drawingY);
-            break;
-        case MotionEvent.ACTION_UP:
-            final Areas areaEnd = getArea(drawingX, drawingY);
-            final Movements movement = MovementHelper.fromAreas(mStartArea, areaEnd);
+            case MotionEvent.ACTION_DOWN:
+                mStartArea = getArea(drawingX, drawingY);
+                mStartPoint = new PointF(drawingX, drawingY);
+                break;
+            case MotionEvent.ACTION_UP:
+                final Areas areaEnd = getArea(drawingX, drawingY);
+                final Movements movement = MovementHelper.fromAreas(mStartArea, areaEnd);
 
-            // if the movement is valid, send notifications and match request
-            if (movement != Movements.invalid && mClientInterface.isGestureValid()) {
-                final PointF pointEnd = new PointF(drawingX, drawingY);
-                final MovementType movementType = MovementHelper.movementToSwipeType(movement);
-                mClientInterface.onMovementDetection(movement, movementType, mStartPoint, pointEnd);
-                final GesturePurposeInfo gesturePurposeInfo = mClientInterface.getGesturePurposeInfo();
-                if (gesturePurposeInfo != null) {
-                    sendMatchRequest(mStartArea, areaEnd, gesturePurposeInfo);
+                // if the movement is valid, send notifications and match request
+                if (movement != Movements.invalid && mClientInterface.isGestureValid()) {
+                    final PointF pointEnd = new PointF(drawingX, drawingY);
+                    final MovementType movementType = MovementHelper.movementToSwipeType(movement);
+                    mClientInterface.onMovementDetection(movement, movementType, mStartPoint, pointEnd);
+                    final GesturePurposeInfo gesturePurposeInfo = mClientInterface.getGesturePurposeInfo();
+                    if (gesturePurposeInfo != null) {
+                        sendMatchRequest(mStartArea, areaEnd, gesturePurposeInfo);
+                    }
                 }
-            }
 
-            mStartArea = Areas.invalid;
-            mStartPoint = null;
+                mStartArea = Areas.invalid;
+                mStartPoint = null;
         }
 
         // let the event propagate through
@@ -92,44 +89,44 @@ public abstract class CloudMatchAcrossView extends CloudMatchView {
     }
 
     private void sendMatchRequest(final Areas areaStart, final Areas areaEnd,
-            final GesturePurposeInfo gesturePurposeInfo) {
+                                  final GesturePurposeInfo gesturePurposeInfo) {
 
         final String equalityParam = mClientInterface.getEqualityParam();
 
         switch (gesturePurposeInfo.mGesturePurpose) {
-        case group_creation:
-            final GroupCreateMatchInput matchCreateInput = new GroupCreateMatchInput(mCriteria);
-            matchCreateInput.mAreaStart = areaStart;
-            matchCreateInput.mAreaEnd = areaEnd;
-            if (!TextUtils.isEmpty(equalityParam)) {
-                matchCreateInput.mEqualityParam = equalityParam;
-            }
-            try {
-                Matcher.sendGroupCreateMatchRequest(matchCreateInput);
-            } catch (final RuntimeException e) {
-                mClientInterface.onError(e);
-            }
-            break;
+            case group_creation:
+                final GroupCreateMatchInput matchCreateInput = new GroupCreateMatchInput(mCriteria);
+                matchCreateInput.mAreaStart = areaStart;
+                matchCreateInput.mAreaEnd = areaEnd;
+                if (!TextUtils.isEmpty(equalityParam)) {
+                    matchCreateInput.mEqualityParam = equalityParam;
+                }
+                try {
+                    Matcher.sendGroupCreateMatchRequest(matchCreateInput);
+                } catch (final RuntimeException e) {
+                    mClientInterface.onError(e);
+                }
+                break;
 
-        case inter_group_communication:
-            final GroupComMatchInput matchComInput = new GroupComMatchInput(mCriteria);
-            matchComInput.mAreaStart = areaStart;
-            matchComInput.mAreaEnd = areaEnd;
-            matchComInput.mGroupId = gesturePurposeInfo.mGroupId;
-            matchComInput.mIdInGroup = String.valueOf(gesturePurposeInfo.mMyIdInGroup);
-            if (!TextUtils.isEmpty(equalityParam)) {
-                matchComInput.mEqualityParam = equalityParam;
-            }
-            try {
-                Matcher.sendGroupComMatchRequest(matchComInput);
-            } catch (final RuntimeException e) {
-                mClientInterface.onError(e);
-            }
-            break;
+            case inter_group_communication:
+                final GroupComMatchInput matchComInput = new GroupComMatchInput(mCriteria);
+                matchComInput.mAreaStart = areaStart;
+                matchComInput.mAreaEnd = areaEnd;
+                matchComInput.mGroupId = gesturePurposeInfo.mGroupId;
+                matchComInput.mIdInGroup = String.valueOf(gesturePurposeInfo.mMyIdInGroup);
+                if (!TextUtils.isEmpty(equalityParam)) {
+                    matchComInput.mEqualityParam = equalityParam;
+                }
+                try {
+                    Matcher.sendGroupComMatchRequest(matchComInput);
+                } catch (final RuntimeException e) {
+                    mClientInterface.onError(e);
+                }
+                break;
 
-        default:
-            // TODO: error!
-            return;
+            default:
+                // TODO: error!
+                return;
         }
 
     }

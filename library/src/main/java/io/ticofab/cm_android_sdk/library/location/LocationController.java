@@ -31,8 +31,6 @@ import io.ticofab.cm_android_sdk.library.exceptions.LocationServicesUnavailableE
 
 /**
  * Controller to retrieve location information using Google Play Services.
- *
- * @author @ticofab
  */
 public class LocationController {
 

@@ -20,9 +20,6 @@ import java.util.UUID;
 
 /**
  * Helper to retrieve the unique id of a device.
- * 
- * @author @ticofab
- * 
  */
 public class UniqueIDHelper {
 

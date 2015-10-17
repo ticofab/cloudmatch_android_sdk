@@ -30,8 +30,6 @@ import io.ticofab.cm_android_sdk.library.models.PositionScheme;
 
 /**
  * Server response to a match attempt from a client.
- *
- * @author @ticofab
  */
 public class MatchResponse {
 

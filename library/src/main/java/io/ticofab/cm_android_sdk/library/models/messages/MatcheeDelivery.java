@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.models.messages;
 
 /**
  * Store information about a paylod that has been received from another device in the same group.
- * 
- * @author @ticofab
- * 
  */
 public class MatcheeDelivery {
     public String mGroupId;

@@ -19,9 +19,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 /**
  * Classification of a general swipe gesture on a screen. It could be originating from a device, incoming from
  * another device or going through a device on to another one.
- * 
- * @author @ticofab
- * 
  */
 public enum MovementType {
     incoming, outgoing, transition, undefined

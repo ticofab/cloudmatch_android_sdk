@@ -27,8 +27,6 @@ import io.ticofab.cm_android_sdk.library.consts.ResponseTypes;
 
 /**
  * Model of a client input to leave the current group.
- *
- * @author @ticofab
  */
 public class LeaveGroupInput {
 

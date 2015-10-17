@@ -29,9 +29,6 @@ import io.ticofab.cm_android_sdk.library.consts.ResponseTypes;
 
 /**
  * Model of a delivery message to send off.
- * 
- * @author @ticofab
- * 
  */
 public class DeliveryInput {
     public ArrayList<Integer> mRecipients;

@@ -25,8 +25,6 @@ import io.ticofab.cm_android_sdk.library.consts.Outcomes;
 
 /**
  * (Optional) Response to a delivery message.
- *
- * @author @ticofab
  */
 public class DeliveryResponse {
     public Outcomes mOutcome = Outcomes.unknown;

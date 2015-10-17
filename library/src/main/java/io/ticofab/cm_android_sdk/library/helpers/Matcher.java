@@ -33,8 +33,6 @@ import io.ticofab.cm_android_sdk.library.models.inputs.base.MatchInput;
 
 /**
  * Helper to package and send a match request to the backend.
- *
- * @author @ticofab
  */
 public class Matcher {
 

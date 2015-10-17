@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.consts;
 
 /**
  * Representation of the areas in which the screen is divide.
- * 
- * @author @ticofab
- * 
  */
 public enum Areas {
     invalid, top, right, left, inner, bottom, outer

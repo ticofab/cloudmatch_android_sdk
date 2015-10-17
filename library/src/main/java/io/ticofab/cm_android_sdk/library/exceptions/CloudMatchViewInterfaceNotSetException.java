@@ -18,9 +18,6 @@ package io.ticofab.cm_android_sdk.library.exceptions;
 
 /**
  * Exception thrown when a client tries to use a CloudMatch instance before connecting it.
- * 
- * @author @ticofab
- * 
  */
 public class CloudMatchViewInterfaceNotSetException extends RuntimeException {
     private static final long serialVersionUID = 1L;
