@@ -48,12 +48,12 @@
         <!-- cloudmatch api key -->
         <meta-data
             android:name="cloudmatch_api_key"
-            android:value="YOUR_API_KEY_HERE"/>
+            android:value="53c26ce3804241acaace8edc59ea1a41"/>
 
         <!-- cloudmatch app id -->
         <meta-data
             android:name="cloudmatch_app_id"
-            android:value="YOUR_APP_ID_HERE"/>
+            android:value="837d7573afd647298351443c81bfe07d"/>
 
     </application>
 
