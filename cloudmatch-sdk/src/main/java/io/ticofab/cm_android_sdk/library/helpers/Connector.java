@@ -16,7 +16,7 @@
 
 package io.ticofab.cm_android_sdk.library.helpers;
 
-import android.app.Activity;
+import android.content.Context;
 import android.provider.Settings.Secure;
 
 import java.net.URI;
@@ -24,30 +24,28 @@ import java.net.URISyntaxException;
 
 import io.ticofab.cm_android_sdk.library.consts.ServerConsts;
 
-
 /**
  * Helper to connect the CloudMatch instance to the backend.
  */
 public class Connector {
-    private static final String CONNECTION_PARAM_APIKEY = "apiKey";
-    private static final String CONNECTION_PARAM_APPID = "appId";
-    private static final String CONNECTION_PARAM_OS = "os";
-    private static final String CONNECTION_PARAM_DEVICEID = "deviceId";
+    final String CONNECTION_PARAM_APIKEY = "apiKey";
+    final String CONNECTION_PARAM_APPID = "appId";
+    final String CONNECTION_PARAM_OS = "os";
+    final String CONNECTION_PARAM_DEVICEID = "deviceId";
 
-    private static String mApiKey;
-    private static String mAppId;
-    private static String mDeviceId;
-    private static final String mOS = "Android";
+    String mApiKey;
+    String mAppId;
+    String mDeviceId;
+    final String mOS = "Android";
 
-    public static void init(final Activity activity, final String apiKey, final String appId) {
+    public Connector(final Context context, final String apiKey, final String appId) {
         // note: this value may change upon factory reset, but it works fine from 2.3 on
-        mDeviceId = Secure.getString(activity.getContentResolver(), Secure.ANDROID_ID);
+        mDeviceId = Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
         mApiKey = apiKey;
         mAppId = appId;
     }
 
-    public static URI getConnectionUri() throws URISyntaxException {
-
+    public URI getConnectionUri() throws URISyntaxException {
         final String url = ServerConsts.WS_ENDPOINT_URL + "?"
                 + CONNECTION_PARAM_APIKEY + "=" + mApiKey + "&"
                 + CONNECTION_PARAM_APPID + "=" + mAppId + "&"

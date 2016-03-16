@@ -16,8 +16,6 @@
 
 package io.ticofab.cm_android_sdk.library.helpers;
 
-import android.app.Activity;
-
 import com.codebutler.android_websockets.WebSocketClient;
 
 import org.json.JSONException;
@@ -34,22 +32,17 @@ import io.ticofab.cm_android_sdk.library.models.inputs.base.MatchInput;
  */
 public class Matcher {
 
-    private static WebSocketClient mWSClient;
-    private static Activity mActivity;
+    final WebSocketClient mWSClient;
 
-    public static void init(final Activity activity) {
-        mActivity = activity;
-    }
-
-    public static void setWebsocketClient(final WebSocketClient wsClient) {
+    public Matcher(final WebSocketClient wsClient) {
         mWSClient = wsClient;
     }
 
-    public static void sendGroupComMatchRequest(final GroupComMatchInput matchInput) {
+    public void sendGroupComMatchRequest(final GroupComMatchInput matchInput) {
         sendMatchRequest(matchInput);
     }
 
-    public static void sendGroupCreateMatchRequest(final GroupCreateMatchInput matchInput)
+    public void sendGroupCreateMatchRequest(final GroupCreateMatchInput matchInput)
             throws LocationServicesUnavailableException {
 
         // TODO the client needs to pass these two:
@@ -60,10 +53,11 @@ public class Matcher {
         sendMatchRequest(matchInput);
     }
 
-    private static void sendMatchRequest(final MatchInput matchInput) throws CloudMatchNotConnectedException,
+    void sendMatchRequest(final MatchInput matchInput) throws CloudMatchNotConnectedException,
             CloudMatchNotInitializedException {
-        checkInitializationOrThrow();
-        checkWebsocketClientOrThrow();
+        if (mWSClient == null || !mWSClient.isConnected()) {
+            throw new CloudMatchNotConnectedException();
+        }
 
         try {
             // get json string and send it over
@@ -71,18 +65,6 @@ public class Matcher {
             mWSClient.send(matchInputJsonStr);
         } catch (final JSONException e) {
             // TODO: manage exception
-        }
-    }
-
-    private static void checkInitializationOrThrow() throws CloudMatchNotInitializedException {
-        if (mActivity == null) {
-            throw new CloudMatchNotInitializedException();
-        }
-    }
-
-    private static void checkWebsocketClientOrThrow() throws CloudMatchNotConnectedException {
-        if (mWSClient == null || !mWSClient.isConnected()) {
-            throw new CloudMatchNotConnectedException();
         }
     }
 }
