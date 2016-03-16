@@ -21,7 +21,6 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.ticofab.cm_android_sdk.library.CloudMatch;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 
 /*

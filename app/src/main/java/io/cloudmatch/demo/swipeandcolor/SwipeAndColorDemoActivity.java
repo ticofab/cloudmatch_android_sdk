@@ -35,7 +35,6 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.ticofab.cm_android_sdk.library.CloudMatch;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
 import io.cloudmatch.demo.R;
 
@@ -47,9 +46,9 @@ public class SwipeAndColorDemoActivity extends Activity {
 
     private static final String TAG = SwipeAndColorDemoActivity.class.getSimpleName();
 
-    private int[] mColorTable;
-    private int mCurrentColorIndex;
-    private int mGroupSize;
+    int[] mColorTable;
+    int mCurrentColorIndex;
+    int mGroupSize;
 
     // Implementation of the matched interface. When the device is matched in a group, this callback will enable
     // the ImageView and give it an inital color corresponding to the color table. It will then set a click
@@ -151,32 +150,6 @@ public class SwipeAndColorDemoActivity extends Activity {
             CloudMatch.connect();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-        }
-    }
-
-    /*
-     * Always resume the CloudMatch in the onResume() method.
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        try {
-            CloudMatch.onResume();
-        } catch (final CloudMatchNotInitializedException e) {
-            // handle exception
-        }
-    }
-
-    /*
-     * Always pause the CloudMatch in the onPause() method.
-     */
-    @Override
-    public void onPause() {
-        super.onPause();
-        try {
-            CloudMatch.onPause();
-        } catch (final CloudMatchNotInitializedException e) {
-            // handle exception
         }
     }
 

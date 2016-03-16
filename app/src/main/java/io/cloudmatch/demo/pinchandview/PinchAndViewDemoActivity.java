@@ -41,7 +41,11 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-import io.ticofab.cm_android_sdk.library.CloudMatch;
+import java.net.URISyntaxException;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
@@ -49,7 +53,6 @@ import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedExce
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
-import io.cloudmatch.demo.R;
 
 /*
  * This demo lets the user pair two devices, pinching them across the long side. The devices
@@ -58,15 +61,15 @@ import io.cloudmatch.demo.R;
 public class PinchAndViewDemoActivity extends Activity {
     private static final String TAG = PinchAndViewDemoActivity.class.getSimpleName();
 
-    private Point mScreenDimensions;
-    private int mHalfScreenY;
-    private int mHalfScreenX;
-    private int mPointEndY;
-    private int mPointEndX;
-    private int mIVWidth;
-    private int mIVHeigth;
-    private int mIVTopX;
-    private int mIVTopY;
+    int mIVTopY;
+    int mIVTopX;
+    int mIVWidth;
+    int mIVHeigth;
+    int mPointEndX;
+    int mPointEndY;
+    int mHalfScreenX;
+    int mHalfScreenY;
+    Point mScreenDimensions;
 
     private PinchAndViewDemoScreenPositions mPosition;
 
@@ -135,13 +138,15 @@ public class PinchAndViewDemoActivity extends Activity {
         }
     };
 
-    private RelativeLayout mContainerRL;
-    private ImageView mPinchInstructionsIcon;
-    private CloudMatchPinchViewHorizontal mPinchView;
+    @Bind(R.id.image_position) ImageView mImage;
+    @Bind(R.id.container_view) RelativeLayout mContainerRL;
+    @Bind(R.id.pinch_view) CloudMatchPinchViewHorizontal mPinchView;
+    @Bind(R.id.pinchandview_pinch_instruction_iv) ImageView mPinchInstructionsIcon;
+
     private final PinchAndViewDemoServerEvent mPinchDemoSEL = new PinchAndViewDemoServerEvent(this,
             mMatchedInterface);
-    private ImageView mImage;
-    private MyRectView mMyRectView;
+
+    MyRectView mMyRectView = new MyRectView(this);
 
     private final Handler mHandler = new Handler();
     private final Runnable mRemoveViewRunnable = new Runnable() {
@@ -156,20 +161,8 @@ public class PinchAndViewDemoActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pinch_and_view_demo);
+        ButterKnife.bind(this);
 
-        mContainerRL = (RelativeLayout) findViewById(R.id.container_view);
-        mMyRectView = new MyRectView(this);
-        mPinchInstructionsIcon = (ImageView) findViewById(R.id.pinchandview_pinch_instruction_iv);
-
-        // get the CloudMatchView object (defined in the xml layout) and set its interface.
-        mPinchView = (CloudMatchPinchViewHorizontal) findViewById(R.id.pinch_view);
-        mPinchView.setCloudMatchInterface(mPinchDemoSMVI);
-
-        if (servicesConnected()) {
-            initCloudMatch();
-        }
-
-        mImage = (ImageView) findViewById(R.id.image_position);
         mImage.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -182,42 +175,24 @@ public class PinchAndViewDemoActivity extends Activity {
         mScreenDimensions = PinchAndViewDisplayHelper.getScreenSize(this);
         mHalfScreenY = mScreenDimensions.y / 2;
         mHalfScreenX = mScreenDimensions.x / 2;
+
+        if (servicesConnected()) {
+            initCloudMatch();
+        }
     }
 
     public void initCloudMatch() {
         // Initializes the CloudMatch. Here the connection is established immediately after, but it could be done
         // at a different stage.
         try {
-            CloudMatch.init(this, mPinchDemoSEL);
-            CloudMatch.connect();
+            // get the CloudMatchView object (defined in the xml layout) and set its interface.
+            // TODO: create LocationProvider
+            mPinchView.initCloudMatch(this, mPinchDemoSEL, null, mPinchDemoSMVI);
+            mPinchView.connect();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-        }
-    }
-
-    /*
-     * Always resume the CloudMatch in the onResume() method.
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        try {
-            CloudMatch.onResume();
-        } catch (final CloudMatchNotInitializedException e) {
-            // handle exception
-        }
-    }
-
-    /*
-     * Always pause the CloudMatch in the onPause() method.
-     */
-    @Override
-    public void onPause() {
-        super.onPause();
-        try {
-            CloudMatch.onPause();
-        } catch (final CloudMatchNotInitializedException e) {
-            // handle exception
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
     }
 
@@ -226,8 +201,8 @@ public class PinchAndViewDemoActivity extends Activity {
      */
     @Override
     public void onDestroy() {
+        mPinchView.closeConnection();
         super.onDestroy();
-        CloudMatch.closeConnection();
     }
 
     /*

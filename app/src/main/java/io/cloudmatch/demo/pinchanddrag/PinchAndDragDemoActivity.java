@@ -44,14 +44,15 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import java.net.URISyntaxException;
 import java.util.Random;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.cloudmatch.demo.R;
-import io.ticofab.cm_android_sdk.library.CloudMatch;
 import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
-import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
@@ -71,11 +72,10 @@ import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
  *      to the first device, which won't make the shape appear again.
  */
 public class PinchAndDragDemoActivity extends Activity {
-    private static final String TAG = PinchAndDragDemoActivity.class.getSimpleName();
-    private static final String DRAG_LABEL = "shape";
-
-    // the groupId will be stored here.
-    private String mGroupId;
+    static final String TAG = PinchAndDragDemoActivity.class.getSimpleName();
+    static final String DRAG_LABEL = "shape";
+    static final String CIRCLE_STRING = "circle";
+    static final String RECT_STRING = "rect";
 
     // implementation of the PinchAndDragMatchedInterface
     private final PinchAndDragMatchedInterface mMatchedInterface = new PinchAndDragMatchedInterface() {
@@ -89,7 +89,7 @@ public class PinchAndDragDemoActivity extends Activity {
 
             // do the "coin toss" to decide who gets the shapes first
             mCoinTossMyValue = new Random().nextDouble();
-            mPinchAndDragDeliveryHelper.sendCointoss(groupId, mCoinTossMyValue);
+            mPNDDeliveryHelper.sendCointoss(groupId, mCoinTossMyValue);
 
             mPinchInstructionsIcon.setVisibility(View.GONE);
         }
@@ -107,18 +107,16 @@ public class PinchAndDragDemoActivity extends Activity {
         }
     };
 
-    // delivery stuff
-    private String mShapeBeingDraggedOnOtherSide = "";
-    private Double mCoinTossMyValue;
-    private String mCircleString;
-    private String mRectString;
-    private boolean mIHaveCircle;
-    private boolean mIHaveSquare;
-    private final PinchAndDragDeliveryHelper mPinchAndDragDeliveryHelper = new PinchAndDragDeliveryHelper();
-    private final Handler mWaitingForDragHandler = new Handler();
-    private static final int DRAGGING_CANCEL_INTERVAL = 3000; // milliseconds
-    private final Handler mShapeVisibilityHandler = new Handler();
-    private static final int SHAPE_VISIBILITY_RESET_INTERVAL = 3000;
+    String mGroupId;
+    String mShapeBeingDraggedOnOtherSide = "";
+    Double mCoinTossMyValue;
+    boolean mIHaveCircle;
+    boolean mIHaveSquare;
+    final PinchAndDragDeliveryHelper mPNDDeliveryHelper = new PinchAndDragDeliveryHelper();
+    final Handler mWaitingForDragHandler = new Handler();
+    static final int DRAGGING_CANCEL_INTERVAL = 3000; // milliseconds
+    final Handler mShapeVisibilityHandler = new Handler();
+    static final int SHAPE_VISIBILITY_RESET_INTERVAL = 3000;
 
     private void setShapesVisibility() {
         mCircleIV.setVisibility(mIHaveCircle ? View.VISIBLE : View.INVISIBLE);
@@ -131,7 +129,7 @@ public class PinchAndDragDemoActivity extends Activity {
      */
     private final PinchAndDragDeliveryInterface mDeliveryInterface = new PinchAndDragDeliveryInterface() {
 
-        // upon receiving a cointoss, check who has the biggest value
+        // upon receiving a coin toss, check who has the biggest value
         @Override
         public void onCoinToss(final Double value) {
             final boolean haveStuff = mCoinTossMyValue > value;
@@ -166,7 +164,7 @@ public class PinchAndDragDemoActivity extends Activity {
         @Override
         public void onShapeReceivedOnOtherSide(final String shape) {
             // the other side got it. Don't make it back to visibility.
-            final boolean haveLostCircle = shape.equals(mCircleString);
+            final boolean haveLostCircle = shape.equals(CIRCLE_STRING);
             if (haveLostCircle) {
                 mIHaveCircle = false;
             } else {
@@ -178,12 +176,15 @@ public class PinchAndDragDemoActivity extends Activity {
     };
 
     // UI stuff
-    private RelativeLayout mContainerRL;
-    private ImageView mPinchInstructionsIcon;
-    private CloudMatchPinchViewHorizontal mPinchView;
-    private MyCircleView mMyCircleView;
-    private ImageView mRectIV;
-    private ImageView mCircleIV;
+    @Bind(R.id.rect_shape) ImageView mRectIV;
+    @Bind(R.id.left_view) RelativeLayout mLeftRL;
+    @Bind(R.id.circle_shape) ImageView mCircleIV;
+    @Bind(R.id.right_view) RelativeLayout mRightRL;
+    @Bind(R.id.container_view) RelativeLayout mContainerRL;
+    @Bind(R.id.pinch_view) CloudMatchPinchViewHorizontal mPinchView;
+    @Bind(R.id.pinchanddrag_pinch_instruction_iv) ImageView mPinchInstructionsIcon;
+
+    MyCircleView mMyCircleView = new MyCircleView(this);
 
     // create the server event handler object, passing it the two interfaces
     private final PinchAndDragDemoServerEvent mPinchAndDragDemoSEL = new PinchAndDragDemoServerEvent(this,
@@ -202,35 +203,7 @@ public class PinchAndDragDemoActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pinch_and_drag_demo);
-
-        mContainerRL = (RelativeLayout) findViewById(R.id.container_view);
-        mPinchInstructionsIcon = (ImageView) findViewById(R.id.pinchanddrag_pinch_instruction_iv);
-        mMyCircleView = new MyCircleView(this);
-
-        // get the CloudMatchPinchViewHorizontal object from the xml layout and sets the interface on it.
-        mPinchView = (CloudMatchPinchViewHorizontal) findViewById(R.id.pinch_view);
-        mPinchView.setCloudMatchInterface(mPinchDemoSMVI);
-
-        mRectIV = (ImageView) findViewById(R.id.rect_shape);
-        mRectIV.setOnTouchListener(new ShapeOnTouchListener());
-
-        mCircleIV = (ImageView) findViewById(R.id.circle_shape);
-        mCircleIV.setOnTouchListener(new ShapeOnTouchListener());
-
-        mCircleString = getString(R.string.circle);
-        mRectString = getString(R.string.rect);
-
-        // setup gesture detector and areas
-        final RelativeLayout rightRL = (RelativeLayout) findViewById(R.id.right_view);
-        rightRL.setOnDragListener(new SideAreaDragListener(SideAreas.Right));
-        rightRL.setOnTouchListener(new SideAreaOnTouchListener(SideAreas.Right));
-
-        final RelativeLayout leftRL = (RelativeLayout) findViewById(R.id.left_view);
-        leftRL.setOnDragListener(new SideAreaDragListener(SideAreas.Left));
-        leftRL.setOnTouchListener(new SideAreaOnTouchListener(SideAreas.Left));
-
-        final RelativeLayout centerRL = (RelativeLayout) findViewById(R.id.center_view);
-        centerRL.setOnDragListener(new CenterAreaDragListener());
+        ButterKnife.bind(this);
 
         if (servicesConnected()) {
             initCloudMatch();
@@ -238,40 +211,31 @@ public class PinchAndDragDemoActivity extends Activity {
     }
 
     public void initCloudMatch() {
-        // initializes the CloudMatch. In this case we also immediately connect, but it could be done also at a
-        // different stage.
+        // initializes the CloudMatch. In this case we also immediately connect,
+        // but it could be done also at a different stage.
         try {
-            CloudMatch.init(this, mPinchAndDragDemoSEL);
-            CloudMatch.connect();
+            // TODO: implement LocationProvider
+            mPinchView.initCloudMatch(this, mPinchAndDragDemoSEL, null, mPinchDemoSMVI);
+            mPinchView.connect();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
-    }
 
-    /*
-     * Always resume the CloudMatch in the onResume() method.
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        try {
-            CloudMatch.onResume();
-        } catch (final CloudMatchNotInitializedException e) {
-            // handle exception
-        }
-    }
+        // get the CloudMatchPinchViewHorizontal object from the xml layout and sets the interface on it.
+        mRectIV.setOnTouchListener(new ShapeOnTouchListener());
+        mCircleIV.setOnTouchListener(new ShapeOnTouchListener());
 
-    /*
-     * Always pause the CloudMatch in the onPause() method.
-     */
-    @Override
-    public void onPause() {
-        super.onPause();
-        try {
-            CloudMatch.onPause();
-        } catch (final CloudMatchNotInitializedException e) {
-            // handle exception
-        }
+        // setup gesture detector and areas
+        mRightRL.setOnDragListener(new SideAreaDragListener(SideAreas.Right));
+        mRightRL.setOnTouchListener(new SideAreaOnTouchListener(SideAreas.Right));
+
+        mLeftRL.setOnDragListener(new SideAreaDragListener(SideAreas.Left));
+        mLeftRL.setOnTouchListener(new SideAreaOnTouchListener(SideAreas.Left));
+
+        final RelativeLayout centerRL = (RelativeLayout) findViewById(R.id.center_view);
+        centerRL.setOnDragListener(new CenterAreaDragListener());
     }
 
     /*
@@ -279,8 +243,8 @@ public class PinchAndDragDemoActivity extends Activity {
      */
     @Override
     public void onDestroy() {
+        mPinchView.closeConnection();
         super.onDestroy();
-        CloudMatch.closeConnection();
     }
 
     /*
@@ -382,7 +346,7 @@ public class PinchAndDragDemoActivity extends Activity {
     // It will be "acquired" and a confirmation will be sent to the other one.
     private void shapeHasBeenDropped() {
         if (!TextUtils.isEmpty(mShapeBeingDraggedOnOtherSide)) {
-            final boolean isDraggingCircle = mShapeBeingDraggedOnOtherSide.equals(mCircleString);
+            final boolean isDraggingCircle = mShapeBeingDraggedOnOtherSide.equals(CIRCLE_STRING);
 
             if (isDraggingCircle && !mIHaveCircle) {
                 // a circle has been dragged from the other side
@@ -394,8 +358,7 @@ public class PinchAndDragDemoActivity extends Activity {
 
             setShapesVisibility();
 
-            mPinchAndDragDeliveryHelper.sendShapeReceivedAck(mGroupId, isDraggingCircle ? mCircleString
-                    : mRectString);
+            mPNDDeliveryHelper.sendShapeReceivedAck(mGroupId, isDraggingCircle ? CIRCLE_STRING : RECT_STRING);
         }
     }
 
@@ -409,7 +372,7 @@ public class PinchAndDragDemoActivity extends Activity {
                     // we were dragging our own shape and dropped in in the center
                     setShapesVisibility();
 
-                    mPinchAndDragDeliveryHelper.sendShapeDragStopped(mGroupId);
+                    mPNDDeliveryHelper.sendShapeDragStopped(mGroupId);
                 } else {
                     // a shape has been dragged to us
                     shapeHasBeenDropped();
@@ -440,14 +403,14 @@ public class PinchAndDragDemoActivity extends Activity {
                 if (TextUtils.isEmpty(mShapeBeingDraggedOnOtherSide)) {
                     // we dropped a shape on the side to transfer it to the other side
 
-                    final View viewToRestore = tag.equals(mCircleString) ? mCircleIV : mRectIV;
+                    final View viewToRestore = tag.equals(CIRCLE_STRING) ? mCircleIV : mRectIV;
                     mShapeVisibilityHandler.postDelayed(new Runnable() {
 
                         @Override
                         public void run() {
                             Log.d(TAG, "mShapeVisibilityHandler, didn't receive any ack.");
                             viewToRestore.setVisibility(View.VISIBLE);
-                            mPinchAndDragDeliveryHelper.sendShapeDragStopped(mGroupId);
+                            mPNDDeliveryHelper.sendShapeDragStopped(mGroupId);
                         }
                     }, SHAPE_VISIBILITY_RESET_INTERVAL);
 
@@ -473,7 +436,7 @@ public class PinchAndDragDemoActivity extends Activity {
                 v.startDrag(tag, shadowBuilder, v, 0);
                 v.setVisibility(View.INVISIBLE);
 
-                mPinchAndDragDeliveryHelper.sendShapeDragStart(mGroupId, shapeTag);
+                mPNDDeliveryHelper.sendShapeDragStart(mGroupId, shapeTag);
 
                 return true;
             }
@@ -496,7 +459,7 @@ public class PinchAndDragDemoActivity extends Activity {
         public boolean onTouch(final View v, final MotionEvent event) {
             // move grey ball to where the touch started
             if (event.getAction() == MotionEvent.ACTION_DOWN && !TextUtils.isEmpty(mShapeBeingDraggedOnOtherSide)) {
-                final boolean isDraggingCircle = mShapeBeingDraggedOnOtherSide.equals(mCircleString);
+                final boolean isDraggingCircle = mShapeBeingDraggedOnOtherSide.equals(CIRCLE_STRING);
                 final View draggedView = isDraggingCircle ? mCircleIV : mRectIV;
                 final DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(draggedView);
                 final ClipData tag = ClipData.newPlainText(DRAG_LABEL, mArea.name());

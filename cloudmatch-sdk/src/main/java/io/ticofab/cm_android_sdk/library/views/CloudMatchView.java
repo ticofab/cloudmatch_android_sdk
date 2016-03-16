@@ -116,15 +116,10 @@ public abstract class CloudMatchView extends View {
      * @throws LocationServicesUnavailableException
      * @throws CloudMatchNotInitializedException
      */
-    public void connect() throws LocationServicesUnavailableException,
-            CloudMatchNotInitializedException,
-            URISyntaxException,
-            PackageManager.NameNotFoundException {
-
+    public void connect() {
         if (mWSClient.isConnected()) {
             mWSClient.disconnect();
         }
-
         mWSClient.connect();
     }
 
