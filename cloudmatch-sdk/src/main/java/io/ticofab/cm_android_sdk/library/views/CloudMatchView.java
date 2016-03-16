@@ -24,13 +24,11 @@ import android.view.View;
 
 import com.codebutler.android_websockets.WebSocketClient;
 
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 
 import io.ticofab.cm_android_sdk.library.consts.Criteria;
 import io.ticofab.cm_android_sdk.library.consts.ServerConsts;
@@ -43,6 +41,7 @@ import io.ticofab.cm_android_sdk.library.helpers.Matcher;
 import io.ticofab.cm_android_sdk.library.helpers.StringHelper;
 import io.ticofab.cm_android_sdk.library.helpers.UniqueIDHelper;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
+import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
 import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
 import io.ticofab.cm_android_sdk.library.listeners.CloudMatchListener;
 import io.ticofab.cm_android_sdk.library.models.inputs.DeliveryInput;
@@ -61,11 +60,13 @@ public abstract class CloudMatchView extends View {
     // the client-provided implementation of OnCloudMatchEvent
     OnCloudMatchEvent mListener;
 
-
+    // helper to match devices
     Matcher mMatcher;
 
+    // the interface for the client to control his view
     CloudMatchViewInterface mClientInterface;
 
+    // pinch or swipe?
     Criteria mCriteria;
 
     public CloudMatchView(final Context context) {
@@ -76,21 +77,24 @@ public abstract class CloudMatchView extends View {
         super(context, attrs);
     }
 
-    public void setCloudMatchInterface(final CloudMatchViewInterface clientInterface) {
-        mClientInterface = clientInterface;
-    }
-
     /**
      * Initializes the CloudMatch. Always call it at the beginning of your application.
      *
-     * @param activity       Provides the context where the application runs.
-     * @param clientListener Implementation of the OnCloudMatchEvent interface. Will be used to notify any network
-     *                       communication.
+     * @param activity         Provides the context where the application runs.
+     * @param clientListener   Implementation of the OnCloudMatchEvent interface. Will be used to notify any network communication.
+     * @param locationProvider Implementation of LocationProvider, needs to serve coordinates when needed
+     * @param clientInterface  Implementation of the CloudMatchViewInterface
+     * @throws URISyntaxException
+     * @throws PackageManager.NameNotFoundException
      */
-     public void initCloudMatch(final Activity activity, final OnCloudMatchEvent clientListener)
+    public void initCloudMatch(final Activity activity,
+                               final OnCloudMatchEvent clientListener,
+                               final LocationProvider locationProvider,
+                               final CloudMatchViewInterface clientInterface)
             throws URISyntaxException, PackageManager.NameNotFoundException {
         mActivity = activity;
         mListener = clientListener;
+        mClientInterface = clientInterface;
 
         if (mActivity == null) {
             throw new CloudMatchNotInitializedException("Activity cannot be null.");
@@ -103,7 +107,7 @@ public abstract class CloudMatchView extends View {
         Connector connector = new Connector(mActivity, StringHelper.getApiKey(mActivity), StringHelper.getAppId(mActivity));
         final URI uri = connector.getConnectionUri();
         mWSClient = new WebSocketClient(uri, myListener, null);
-        mMatcher = new Matcher(mWSClient);
+        mMatcher = new Matcher(mWSClient, locationProvider);
     }
 
     /**
