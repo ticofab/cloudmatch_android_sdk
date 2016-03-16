@@ -25,7 +25,7 @@ import org.json.JSONObject;
 
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchConnectionException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchInvalidCredentialException;
-import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeDelivery;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeLeftMessage;
 import io.ticofab.cm_android_sdk.library.models.responses.DeliveryResponse;
@@ -37,16 +37,16 @@ import io.cloudmatch.demo.R;
  * Implementation of the OnCloudMatchEvent interface from the CloudMatch. This class also takes two listeners,
  * see constructor. As usual, many callbacks are not implemented as they're not required in this application.
  */
-public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
-    private static final String TAG = SwipeAndColorDemoServerEvent.class.getSimpleName();
+public class SwipeAndColorServerEventListener implements CloudMatchEventListener {
+    private static final String TAG = SwipeAndColorServerEventListener.class.getSimpleName();
 
     private final Activity mActivity;
-    private final SwipeAndColorDemoMatchedInterface mMatchedListener;
-    private final SwipeAndColorDemoDeliveryInterface mRotationListener;
+    private final SwipeAndColorMatchedInterface mMatchedListener;
+    private final SwipeAndColorDeliveryInterface mRotationListener;
 
-    public SwipeAndColorDemoServerEvent(final Activity activity,
-                                        final SwipeAndColorDemoMatchedInterface matchedInterface,
-                                        final SwipeAndColorDemoDeliveryInterface rotationListener) {
+    public SwipeAndColorServerEventListener(final Activity activity,
+                                            final SwipeAndColorMatchedInterface matchedInterface,
+                                            final SwipeAndColorDeliveryInterface rotationListener) {
         mActivity = activity;
         mMatchedListener = matchedInterface;
         mRotationListener = rotationListener;
@@ -131,7 +131,7 @@ public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
     public void onMatcheeDelivery(final MatcheeDelivery delivery) {
         try {
             final JSONObject json = new JSONObject(delivery.mPayload);
-            if (json.has(SwipeAndColorDemoDeliveryInterface.ROTATION_MESSAGE)) {
+            if (json.has(SwipeAndColorDeliveryInterface.ROTATION_MESSAGE)) {
                 Log.d(TAG, "matchee delivery: rotation");
                 mRotationListener.onRotateMessage();
             }

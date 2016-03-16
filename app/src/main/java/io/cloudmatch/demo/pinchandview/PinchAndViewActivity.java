@@ -60,9 +60,9 @@ import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
  * This demo lets the user pair two devices, pinching them across the long side. The devices
  * will understand their relative position (left or right) and the corresponding image will be shown.
  */
-public class PinchAndViewDemoActivity extends FragmentActivity implements
+public class PinchAndViewActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private static final String TAG = PinchAndViewDemoActivity.class.getSimpleName();
+    private static final String TAG = PinchAndViewActivity.class.getSimpleName();
 
     @Bind(R.id.image_position) ImageView mImage;
     @Bind(R.id.container_view) RelativeLayout mContainerRL;
@@ -90,7 +90,7 @@ public class PinchAndViewDemoActivity extends FragmentActivity implements
         }
     };
 
-    PinchAndViewDemoScreenPositions mPosition;
+    PinchAndViewScreenPositions mPosition;
     PinchAndViewDeliveryHelper mPinchAndViewDeliveryHelper = new PinchAndViewDeliveryHelper(mPinchView);
 
     // location stuff
@@ -104,12 +104,12 @@ public class PinchAndViewDemoActivity extends FragmentActivity implements
 
         @Override
         public void onMatched(final String groupId, final int groupSize,
-                              final PinchAndViewDemoScreenPositions position) {
+                              final PinchAndViewScreenPositions position) {
 
             final String txt = "Matched in a group of " + groupSize + ", my position is " + position + ".";
-            Toast.makeText(PinchAndViewDemoActivity.this, txt, Toast.LENGTH_LONG).show();
+            Toast.makeText(PinchAndViewActivity.this, txt, Toast.LENGTH_LONG).show();
 
-            if (position == PinchAndViewDemoScreenPositions.unknown) {
+            if (position == PinchAndViewScreenPositions.unknown) {
                 return;
             }
 
@@ -198,7 +198,7 @@ public class PinchAndViewDemoActivity extends FragmentActivity implements
         try {
             // get the CloudMatchView object (defined in the xml layout) and set its interface.
             mPinchView.initCloudMatch(this,
-                    new PinchAndViewDemoServerEvent(this, mMatchedInterface),
+                    new PinchAndViewServerEventListener(this, mMatchedInterface),
                     new LocationProvider() {
 
                         @Override
@@ -417,7 +417,7 @@ public class PinchAndViewDemoActivity extends FragmentActivity implements
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            ((PinchAndViewDemoActivity) getActivity()).onDialogDismissed();
+            ((PinchAndViewActivity) getActivity()).onDialogDismissed();
         }
     }
 }

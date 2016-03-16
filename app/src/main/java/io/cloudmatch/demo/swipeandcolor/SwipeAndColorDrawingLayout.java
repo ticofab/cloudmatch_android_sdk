@@ -27,7 +27,6 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.RelativeLayout;
 
 import io.cloudmatch.demo.R;
@@ -36,7 +35,7 @@ import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
-import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchSwipeViewAllSides;
 
@@ -44,7 +43,7 @@ import io.ticofab.cm_android_sdk.library.views.CloudMatchSwipeViewAllSides;
  * This layout will take care of managing the swipe drawing on screen and will listen to the
  * callbacks from the CloudMatchView (in this case a CloudMatchSwipeViewAllSides).
  */
-public class SwipeAndColorDemoDrawingLayout extends RelativeLayout {
+public class SwipeAndColorDrawingLayout extends RelativeLayout {
 
     // the main cloudmatch view
     CloudMatchSwipeViewAllSides mSwipeAllSidesView;
@@ -58,15 +57,15 @@ public class SwipeAndColorDemoDrawingLayout extends RelativeLayout {
     Paint mBitmapPaint;
     static final float TOUCH_TOLERANCE = 4;
 
-    public SwipeAndColorDemoDrawingLayout(final Activity activity,
-                                          final OnCloudMatchEvent eventListener,
-                                          final LocationProvider locationProvider) {
+    public SwipeAndColorDrawingLayout(final Activity activity,
+                                      final CloudMatchEventListener eventListener,
+                                      final LocationProvider locationProvider) {
         super(activity);
         initStuff(activity, eventListener, locationProvider);
     }
 
     private void initStuff(final Activity activity,
-                           final OnCloudMatchEvent eventListener,
+                           final CloudMatchEventListener eventListener,
                            final LocationProvider locationProvider) {
         final LayoutInflater inflater = LayoutInflater.from(activity);
         inflater.inflate(R.layout.swipe_and_color_demo_drawing_layout, this);

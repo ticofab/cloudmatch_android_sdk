@@ -31,7 +31,7 @@ import io.ticofab.cm_android_sdk.library.consts.MessageTypes;
 import io.ticofab.cm_android_sdk.library.consts.ResponseTypes;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchConnectionException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchInvalidCredentialException;
-import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.interfaces.OnServerMessage;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeDelivery;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeDeliveryMessage;
@@ -46,10 +46,10 @@ import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
  * connection and then triggers the appropriate callback on the client side.
  */
 public class ServerMessagesHandler implements OnServerMessage {
-    private final OnCloudMatchEvent mServerEventsHandler;
+    private final CloudMatchEventListener mServerEventsHandler;
     private final Activity mActivity;
 
-    public ServerMessagesHandler(final Activity activity, final OnCloudMatchEvent serverEventHandler) {
+    public ServerMessagesHandler(final Activity activity, final CloudMatchEventListener serverEventHandler) {
         mServerEventsHandler = serverEventHandler;
         mActivity = activity;
     }

@@ -48,10 +48,10 @@ import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
  * This demo lets you match up to 8 devices using a single swipe, and each one will display a different color.
  * Tapping on any device will make all of them rotate color.
  */
-public class SwipeAndColorDemoActivity extends FragmentActivity implements
+public class SwipeAndColorActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    private static final String TAG = SwipeAndColorDemoActivity.class.getSimpleName();
+    private static final String TAG = SwipeAndColorActivity.class.getSimpleName();
 
     @Bind(R.id.color_image_iv) ImageView mColorIV;
     @Bind(R.id.container_view) RelativeLayout mContainer;
@@ -68,7 +68,7 @@ public class SwipeAndColorDemoActivity extends FragmentActivity implements
     // the ImageView and give it an inital color corresponding to the color table. It will then set a click
     // listener on it which will broadcast a "rotation message" to all the other devices in the group when the
     // image receives a click.
-    private final SwipeAndColorDemoMatchedInterface mMatchedInterface = new SwipeAndColorDemoMatchedInterface() {
+    private final SwipeAndColorMatchedInterface mMatchedInterface = new SwipeAndColorMatchedInterface() {
 
         @Override
         public void onMatched(final String groupId, final int groupSize, final int myIdInGroup) {
@@ -88,7 +88,7 @@ public class SwipeAndColorDemoActivity extends FragmentActivity implements
                 public void onClick(final View v) {
                     try {
                         final JSONObject json = new JSONObject();
-                        json.put(SwipeAndColorDemoDeliveryInterface.ROTATION_MESSAGE, 1);
+                        json.put(SwipeAndColorDeliveryInterface.ROTATION_MESSAGE, 1);
                         mDrawingLayout.deliverPayload(json.toString(), groupId);
                         setNewColor();
                     } catch (final JSONException e) {
@@ -121,7 +121,7 @@ public class SwipeAndColorDemoActivity extends FragmentActivity implements
 
     // Implementation of the SwipeAndColorDemoDeliveryInterface. When the server event handler receives a delivery
     // containing a rotation message, it will trigger the color switch.
-    private final SwipeAndColorDemoDeliveryInterface mRotationInterface = new SwipeAndColorDemoDeliveryInterface() {
+    private final SwipeAndColorDeliveryInterface mRotationInterface = new SwipeAndColorDeliveryInterface() {
 
         @Override
         public void onRotateMessage() {
@@ -130,8 +130,8 @@ public class SwipeAndColorDemoActivity extends FragmentActivity implements
         }
     };
 
-    SwipeAndColorDemoDrawingLayout mDrawingLayout;
-    SwipeAndColorDemoServerEvent mSwipeAndColorDemoSEL = new SwipeAndColorDemoServerEvent(this,
+    SwipeAndColorDrawingLayout mDrawingLayout;
+    SwipeAndColorServerEventListener mSwipeAndColorDemoSEL = new SwipeAndColorServerEventListener(this,
             mMatchedInterface, mRotationInterface);
 
     // triggers a new color on screen.
@@ -153,7 +153,7 @@ public class SwipeAndColorDemoActivity extends FragmentActivity implements
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
-        mDrawingLayout = new SwipeAndColorDemoDrawingLayout(this, mSwipeAndColorDemoSEL, new LocationProvider() {
+        mDrawingLayout = new SwipeAndColorDrawingLayout(this, mSwipeAndColorDemoSEL, new LocationProvider() {
             @Override
             public Location getLocation() {
                 if (mGoogleApiClient.isConnected()) {
@@ -256,7 +256,7 @@ public class SwipeAndColorDemoActivity extends FragmentActivity implements
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            ((SwipeAndColorDemoActivity) getActivity()).onDialogDismissed();
+            ((SwipeAndColorActivity) getActivity()).onDialogDismissed();
         }
     }
 }

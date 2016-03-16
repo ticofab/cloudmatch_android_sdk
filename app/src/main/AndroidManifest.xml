@@ -26,17 +26,17 @@
         </activity>
 
         <activity
-            android:name=".pinchandview.PinchAndViewDemoActivity"
+            android:name=".pinchandview.PinchAndViewActivity"
             android:label="@string/title_activity_pinch_demo"
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".pinchanddrag.PinchAndDragDemoActivity"
+            android:name=".pinchanddrag.PinchAndDragActivity"
             android:label="@string/title_activity_pinch_and_drag_demo"
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".swipeandcolor.SwipeAndColorDemoActivity"
+            android:name=".swipeandcolor.SwipeAndColorActivity"
             android:label="@string/title_activity_swipe_and_color_demo"
             android:screenOrientation="portrait"/>
 

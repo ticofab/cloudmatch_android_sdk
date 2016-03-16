@@ -22,7 +22,7 @@ package io.cloudmatch.demo.pinchandview;
 public interface PinchAndViewOnMatchedInterface {
     String IMAGE_HEIGHT = "imgHeight";
 
-    void onMatched(String groupId, int groupSize, PinchAndViewDemoScreenPositions position);
+    void onMatched(String groupId, int groupSize, PinchAndViewScreenPositions position);
 
     void onOtherMeasurements(int othersImageHeight);
 }

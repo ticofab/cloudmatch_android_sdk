@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.pinchanddrag;
+package io.cloudmatch.demo.pinchandview;
 
 import android.app.Activity;
 import android.util.Log;
@@ -25,7 +25,9 @@ import org.json.JSONObject;
 
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchConnectionException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchInvalidCredentialException;
-import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
+import io.ticofab.cm_android_sdk.library.models.DeviceInScheme;
+import io.ticofab.cm_android_sdk.library.models.PositionScheme;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeDelivery;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeLeftMessage;
 import io.ticofab.cm_android_sdk.library.models.responses.DeliveryResponse;
@@ -34,23 +36,19 @@ import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
 import io.cloudmatch.demo.R;
 
 /*
- * Implementation of the OnCloudMatchEvent interface from CloudMatch. Will receive callbacks upon server events.
- * This implementation also gets the context and two interfaces in the constructor.
- * A lot of these methods are not used in this application and are therefore left empty. 
+ * Implementation of the OnCloudMatchEvent interface in the CloudMatchSDK. It adds some logic for "internal"
+ * communication within this demo.
  */
-public class PinchAndDragDemoServerEvent implements OnCloudMatchEvent {
-    private static final String TAG = PinchAndDragDemoServerEvent.class.getSimpleName();
+public class PinchAndViewServerEventListener implements CloudMatchEventListener {
+    private static final String TAG = PinchAndViewServerEventListener.class.getSimpleName();
 
     private final Activity mActivity;
-    private final PinchAndDragMatchedInterface mMatchedListener;
-    private final PinchAndDragDeliveryInterface mDeliveryListener;
+    private final PinchAndViewOnMatchedInterface mMatchedListener;
 
-    public PinchAndDragDemoServerEvent(final Activity activity,
-                                       final PinchAndDragMatchedInterface matchedInterface,
-                                       final PinchAndDragDeliveryInterface deliveryInterface) {
+    public PinchAndViewServerEventListener(final Activity activity,
+                                           final PinchAndViewOnMatchedInterface matchedInterface) {
         mActivity = activity;
         mMatchedListener = matchedInterface;
-        mDeliveryListener = deliveryInterface;
     }
 
     @Override
@@ -68,7 +66,7 @@ public class PinchAndDragDemoServerEvent implements OnCloudMatchEvent {
     @Override
     public void onConnectionError(final Exception error) {
         Log.d(TAG, "onConnectionError");
-        String msg = "connection error";
+        String msg = "Connection error";
         if (error instanceof CloudMatchInvalidCredentialException) {
             msg = "The API Key and APP Id that you are using seem to be incorrect. Are you running the latest version of CloudMatch Demo?";
         } else if (error instanceof CloudMatchConnectionException) {
@@ -77,13 +75,44 @@ public class PinchAndDragDemoServerEvent implements OnCloudMatchEvent {
         Toast.makeText(mActivity, msg, Toast.LENGTH_LONG).show();
     }
 
-    // if a successful match is established, will notify the listener through the interface.
+    /*
+     * When a match between two devices is successfully established, this code will understand the respective
+     * positions and notify it to the main activity through the PinchOnMatchedInterface interface.
+     */
     @Override
     public void onMatchResponse(final MatchResponse response) {
         Log.d(TAG, "onMatchResponse: " + response);
         switch (response.mOutcome) {
             case ok:
-                mMatchedListener.onMatched(response.mGroupId);
+                final int groupSize = response.mGroupSize;
+
+                // it's pinch. I know only two devices are involved.
+                final PositionScheme scheme = response.mPositionScheme;
+                if (scheme.mDevices.size() != 2) {
+                    // error, there should only be two devices!
+                    final String txt = "Error: matched in a group with more than 2 devices.";
+                    Toast.makeText(mActivity, txt, Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // for this demo, devices are only paired horizontally
+
+                int otherDeviceId = -1;
+                for (final Integer i : response.mOthersInGroup) {
+                    if (i != response.mMyIdInGroup) {
+                        otherDeviceId = i;
+                        break;
+                    }
+                }
+                final DeviceInScheme myself = scheme.getDevicePerId(response.mMyIdInGroup);
+                final DeviceInScheme other = scheme.getDevicePerId(otherDeviceId);
+
+                if (myself != null && other != null) {
+                    final boolean xGreater = myself.mPosition.x > other.mPosition.x;
+                    final PinchAndViewScreenPositions position = xGreater ? PinchAndViewScreenPositions.right
+                            : PinchAndViewScreenPositions.left;
+                    mMatchedListener.onMatched(response.mGroupId, groupSize, position);
+                }
                 break;
             case fail:
                 // is there a reason?
@@ -103,6 +132,9 @@ public class PinchAndDragDemoServerEvent implements OnCloudMatchEvent {
         }
     }
 
+    /*
+     * We don't expect anything else in this app, so the following methods won't do anything.
+     */
     @Override
     public void onLeaveGroupResponse(final LeaveGroupResponse response) {
         Log.d(TAG, "onLeaveGroupResponse: " + response);
@@ -115,35 +147,24 @@ public class PinchAndDragDemoServerEvent implements OnCloudMatchEvent {
 
     @Override
     public void onDeliveryProgress(final String tag, final String deliveryId, final int progress) {
-        // do nothing
+        Log.d(TAG, "onDeliveryProgress: " + progress);
     }
 
     @Override
     public void onMatcheeDeliveryProgress(final String tag, final int progress) {
-        // do nothing
+        Log.d(TAG, "onMatcheeDeliveryProgress: " + progress);
     }
 
-    // When a new delivery arrives, this method parses it and notifies the listener through the proper interface
-    // call.
     @Override
     public void onMatcheeDelivery(final MatcheeDelivery delivery) {
+        Log.d(TAG, "onMatcheeDelivery");
+
         try {
             final JSONObject json = new JSONObject(delivery.mPayload);
-            if (json.has(PinchAndDragDeliveryInterface.COIN_TOSS)) {
-                final Double coinToss = json.getDouble(PinchAndDragDeliveryInterface.COIN_TOSS);
-                Log.d(TAG, "matchee delivery: CoinToss, " + coinToss);
-                mDeliveryListener.onCoinToss(coinToss);
-            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_DRAG)) {
-                final String shape = json.getString(PinchAndDragDeliveryInterface.SHAPE_DRAG);
-                Log.d(TAG, "matchee delivery, shape drag other side: " + shape);
-                mDeliveryListener.onShapeDragInitiatedOnOtherSide(shape);
-            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_ACQUISITION_ACK)) {
-                Log.d(TAG, "matchee delivery, shape acquisition other side.");
-                final String shape = json.getString(PinchAndDragDeliveryInterface.SHAPE_ACQUISITION_ACK);
-                mDeliveryListener.onShapeReceivedOnOtherSide(shape);
-            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_DRAG_STOPPED)) {
-                Log.d(TAG, "matchee delivery, shape drag stopped other side.");
-                mDeliveryListener.onShapeDragStoppedOnOtherSide();
+            if (json.has(PinchAndViewOnMatchedInterface.IMAGE_HEIGHT)) {
+                final int imageHeight = json.getInt(PinchAndViewOnMatchedInterface.IMAGE_HEIGHT);
+                Log.d(TAG, "matchee delivery: image height, " + imageHeight);
+                mMatchedListener.onOtherMeasurements(imageHeight);
             } else {
                 Log.d(TAG, "matchee delivery, not sure what it was: " + delivery);
             }
@@ -156,7 +177,6 @@ public class PinchAndDragDemoServerEvent implements OnCloudMatchEvent {
     @Override
     public void onMatcheeLeft(final MatcheeLeftMessage message) {
         Log.d(TAG, "onMatcheeLeft: " + message);
-        mMatchedListener.onMatcheeLeft();
     }
 
 }

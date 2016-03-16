@@ -42,7 +42,7 @@ import io.ticofab.cm_android_sdk.library.helpers.StringHelper;
 import io.ticofab.cm_android_sdk.library.helpers.UniqueIDHelper;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
-import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.listeners.CloudMatchListener;
 import io.ticofab.cm_android_sdk.library.models.inputs.DeliveryInput;
 
@@ -58,7 +58,7 @@ public abstract class CloudMatchView extends View {
     Activity mActivity;
 
     // the client-provided implementation of OnCloudMatchEvent
-    OnCloudMatchEvent mListener;
+    CloudMatchEventListener mListener;
 
     // helper to match devices
     Matcher mMatcher;
@@ -87,7 +87,7 @@ public abstract class CloudMatchView extends View {
      * @throws PackageManager.NameNotFoundException
      */
     public void initCloudMatch(final Activity activity,
-                               final OnCloudMatchEvent clientListener,
+                               final CloudMatchEventListener clientListener,
                                final LocationProvider locationProvider,
                                final CloudMatchViewInterface clientInterface)
             throws PackageManager.NameNotFoundException {
@@ -191,13 +191,13 @@ public abstract class CloudMatchView extends View {
         int mTotalChunks;
         int mCurrentChunk;
         String mDeliveryId;
-        OnCloudMatchEvent mListener;
+        CloudMatchEventListener mListener;
 
         public DeliveryProgressRunnable(final String tag,
                                         final String deliveryId,
                                         final int totalChunks,
                                         final int currentChunk,
-                                        final OnCloudMatchEvent listener) {
+                                        final CloudMatchEventListener listener) {
             mTag = tag;
             mListener = listener;
             mDeliveryId = deliveryId;

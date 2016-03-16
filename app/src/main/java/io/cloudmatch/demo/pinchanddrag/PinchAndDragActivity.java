@@ -74,9 +74,9 @@ import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
  *   3. If the shape is then dropped in the center area of the second device, it will "acquire it" and send an ACK message
  *      to the first device, which won't make the shape appear again.
  */
-public class PinchAndDragDemoActivity extends FragmentActivity implements
+public class PinchAndDragActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    static final String TAG = PinchAndDragDemoActivity.class.getSimpleName();
+    static final String TAG = PinchAndDragActivity.class.getSimpleName();
     static final String DRAG_LABEL = "shape";
     static final String CIRCLE_STRING = "circle";
     static final String RECT_STRING = "rect";
@@ -124,7 +124,7 @@ public class PinchAndDragDemoActivity extends FragmentActivity implements
             mGroupId = groupId;
 
             final String txt = "Matched in group " + groupId;
-            Toast.makeText(PinchAndDragDemoActivity.this, txt, Toast.LENGTH_LONG).show();
+            Toast.makeText(PinchAndDragActivity.this, txt, Toast.LENGTH_LONG).show();
 
             // do the "coin toss" to decide who gets the shapes first
             mCoinTossMyValue = new Random().nextDouble();
@@ -137,7 +137,7 @@ public class PinchAndDragDemoActivity extends FragmentActivity implements
         public void onMatcheeLeft() {
             mGroupId = null;
             final String txt = "Everybody left";
-            Toast.makeText(PinchAndDragDemoActivity.this, txt, Toast.LENGTH_LONG).show();
+            Toast.makeText(PinchAndDragActivity.this, txt, Toast.LENGTH_LONG).show();
 
             mIHaveCircle = false;
             mIHaveSquare = false;
@@ -226,7 +226,7 @@ public class PinchAndDragDemoActivity extends FragmentActivity implements
         try {
             // TODO: implement LocationProvider
             mPinchView.initCloudMatch(this,
-                    new PinchAndDragDemoServerEvent(this, mMatchedInterface, mDeliveryInterface),
+                    new PinchAndDragServerEventListener(this, mMatchedInterface, mDeliveryInterface),
                     new LocationProvider() {
                         @Override
                         public Location getLocation() {
@@ -567,7 +567,7 @@ public class PinchAndDragDemoActivity extends FragmentActivity implements
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            ((PinchAndDragDemoActivity) getActivity()).onDialogDismissed();
+            ((PinchAndDragActivity) getActivity()).onDialogDismissed();
         }
     }
 }
