@@ -74,9 +74,9 @@ import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
  *   3. If the shape is then dropped in the center area of the second device, it will "acquire it" and send an ACK message
  *      to the first device, which won't make the shape appear again.
  */
-public class PinchAndDragActivity extends FragmentActivity implements
+public class PADActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    static final String TAG = PinchAndDragActivity.class.getSimpleName();
+    static final String TAG = PADActivity.class.getSimpleName();
     static final String DRAG_LABEL = "shape";
     static final String CIRCLE_STRING = "circle";
     static final String RECT_STRING = "rect";
@@ -101,7 +101,7 @@ public class PinchAndDragActivity extends FragmentActivity implements
     String mShapeBeingDraggedOnOtherSide = "";
     final Handler mWaitingForDragHandler = new Handler();
     final Handler mShapeVisibilityHandler = new Handler();
-    final PinchAndDragDeliveryHelper mPNDDeliveryHelper = new PinchAndDragDeliveryHelper(mPinchView);
+    final PADDeliveryHelper mPNDDeliveryHelper = new PADDeliveryHelper(mPinchView);
 
     // location stuff
     Location mLastLocation;
@@ -117,14 +117,14 @@ public class PinchAndDragActivity extends FragmentActivity implements
     };
 
     // implementation of the PinchAndDragMatchedInterface
-    private final PinchAndDragMatchedInterface mMatchedInterface = new PinchAndDragMatchedInterface() {
+    private final PADMatchedInterface mMatchedInterface = new PADMatchedInterface() {
 
         @Override
         public void onMatched(final String groupId) {
             mGroupId = groupId;
 
             final String txt = "Matched in group " + groupId;
-            Toast.makeText(PinchAndDragActivity.this, txt, Toast.LENGTH_LONG).show();
+            Toast.makeText(PADActivity.this, txt, Toast.LENGTH_LONG).show();
 
             // do the "coin toss" to decide who gets the shapes first
             mCoinTossMyValue = new Random().nextDouble();
@@ -137,7 +137,7 @@ public class PinchAndDragActivity extends FragmentActivity implements
         public void onMatcheeLeft() {
             mGroupId = null;
             final String txt = "Everybody left";
-            Toast.makeText(PinchAndDragActivity.this, txt, Toast.LENGTH_LONG).show();
+            Toast.makeText(PADActivity.this, txt, Toast.LENGTH_LONG).show();
 
             mIHaveCircle = false;
             mIHaveSquare = false;
@@ -155,7 +155,7 @@ public class PinchAndDragActivity extends FragmentActivity implements
      * Implementation of PinchAndDragDeliveryInterface, triggered in response to deliveries from other devices in
      * the same group.
      */
-    private final PinchAndDragDeliveryInterface mDeliveryInterface = new PinchAndDragDeliveryInterface() {
+    private final PADDeliveryInterface mDeliveryInterface = new PADDeliveryInterface() {
 
         // upon receiving a coin toss, check who has the biggest value
         @Override
@@ -226,7 +226,7 @@ public class PinchAndDragActivity extends FragmentActivity implements
         try {
             // TODO: implement LocationProvider
             mPinchView.initCloudMatch(this,
-                    new PinchAndDragServerEventListener(this, mMatchedInterface, mDeliveryInterface),
+                    new PADServerEventListener(this, mMatchedInterface, mDeliveryInterface),
                     new LocationProvider() {
                         @Override
                         public Location getLocation() {
@@ -567,7 +567,7 @@ public class PinchAndDragActivity extends FragmentActivity implements
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            ((PinchAndDragActivity) getActivity()).onDialogDismissed();
+            ((PADActivity) getActivity()).onDialogDismissed();
         }
     }
 }

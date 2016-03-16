@@ -60,9 +60,9 @@ import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
  * This demo lets the user pair two devices, pinching them across the long side. The devices
  * will understand their relative position (left or right) and the corresponding image will be shown.
  */
-public class PinchAndViewActivity extends FragmentActivity implements
+public class PAVActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private static final String TAG = PinchAndViewActivity.class.getSimpleName();
+    private static final String TAG = PAVActivity.class.getSimpleName();
 
     @Bind(R.id.image_position) ImageView mImage;
     @Bind(R.id.container_view) RelativeLayout mContainerRL;
@@ -90,8 +90,8 @@ public class PinchAndViewActivity extends FragmentActivity implements
         }
     };
 
-    PinchAndViewScreenPositions mPosition;
-    PinchAndViewDeliveryHelper mPinchAndViewDeliveryHelper = new PinchAndViewDeliveryHelper(mPinchView);
+    PAVScreenPositions mPosition;
+    PAVDeliveryHelper mPAVDeliveryHelper = new PAVDeliveryHelper(mPinchView);
 
     // location stuff
     Location mLastLocation;
@@ -100,23 +100,23 @@ public class PinchAndViewActivity extends FragmentActivity implements
     /*
      * Implementation of the PinchOnMatchedInterface. Upon a successful matching, the corresponding image is shown.
      */
-    private final PinchAndViewOnMatchedInterface mMatchedInterface = new PinchAndViewOnMatchedInterface() {
+    private final PAVOnMatchedInterface mMatchedInterface = new PAVOnMatchedInterface() {
 
         @Override
         public void onMatched(final String groupId, final int groupSize,
-                              final PinchAndViewScreenPositions position) {
+                              final PAVScreenPositions position) {
 
             final String txt = "Matched in a group of " + groupSize + ", my position is " + position + ".";
-            Toast.makeText(PinchAndViewActivity.this, txt, Toast.LENGTH_LONG).show();
+            Toast.makeText(PAVActivity.this, txt, Toast.LENGTH_LONG).show();
 
-            if (position == PinchAndViewScreenPositions.unknown) {
+            if (position == PAVScreenPositions.unknown) {
                 return;
             }
 
             mPosition = position;
 
             // send message to the other guy with my data
-            mPinchAndViewDeliveryHelper.sendImageHeight(groupId, mIVHeigth);
+            mPAVDeliveryHelper.sendImageHeight(groupId, mIVHeigth);
         }
 
         @Override
@@ -180,7 +180,7 @@ public class PinchAndViewActivity extends FragmentActivity implements
         // initialize here or otherwise this will be null
         mMyRectView = new MyRectView(this);
 
-        mScreenDimensions = PinchAndViewDisplayHelper.getScreenSize(this);
+        mScreenDimensions = PAVDisplayHelper.getScreenSize(this);
         mHalfScreenY = mScreenDimensions.y / 2;
         mHalfScreenX = mScreenDimensions.x / 2;
 
@@ -198,7 +198,7 @@ public class PinchAndViewActivity extends FragmentActivity implements
         try {
             // get the CloudMatchView object (defined in the xml layout) and set its interface.
             mPinchView.initCloudMatch(this,
-                    new PinchAndViewServerEventListener(this, mMatchedInterface),
+                    new PAVServerEventListener(this, mMatchedInterface),
                     new LocationProvider() {
 
                         @Override
@@ -417,7 +417,7 @@ public class PinchAndViewActivity extends FragmentActivity implements
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            ((PinchAndViewActivity) getActivity()).onDialogDismissed();
+            ((PAVActivity) getActivity()).onDialogDismissed();
         }
     }
 }

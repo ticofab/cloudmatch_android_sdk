@@ -19,7 +19,7 @@ package io.cloudmatch.demo.pinchanddrag;
 /*
  * Interface for internal communication about the payload exchanges.
  */
-public interface PinchAndDragDeliveryInterface {
+public interface PADDeliveryInterface {
 
     String COIN_TOSS = "cointoss";
     String SHAPE_DRAG = "shapedrag";

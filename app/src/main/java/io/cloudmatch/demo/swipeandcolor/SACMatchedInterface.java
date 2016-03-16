@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.pinchandview;
+package io.cloudmatch.demo.swipeandcolor;
 
 /*
- * Definitions of positions where a device can find itself in this app. 
+ * Interface to notify the listener that we have been matched in a group.
  */
-public enum PinchAndViewScreenPositions {
-    unknown, left, right
+public interface SACMatchedInterface {
+    void onMatched(String groupId, int groupSize, int myIdInGroup);
+
+    void onMatcheeLeft();
 }

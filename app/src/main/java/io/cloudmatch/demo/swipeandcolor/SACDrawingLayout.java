@@ -43,7 +43,7 @@ import io.ticofab.cm_android_sdk.library.views.CloudMatchSwipeViewAllSides;
  * This layout will take care of managing the swipe drawing on screen and will listen to the
  * callbacks from the CloudMatchView (in this case a CloudMatchSwipeViewAllSides).
  */
-public class SwipeAndColorDrawingLayout extends RelativeLayout {
+public class SACDrawingLayout extends RelativeLayout {
 
     // the main cloudmatch view
     CloudMatchSwipeViewAllSides mSwipeAllSidesView;
@@ -57,9 +57,9 @@ public class SwipeAndColorDrawingLayout extends RelativeLayout {
     Paint mBitmapPaint;
     static final float TOUCH_TOLERANCE = 4;
 
-    public SwipeAndColorDrawingLayout(final Activity activity,
-                                      final CloudMatchEventListener eventListener,
-                                      final LocationProvider locationProvider) {
+    public SACDrawingLayout(final Activity activity,
+                            final CloudMatchEventListener eventListener,
+                            final LocationProvider locationProvider) {
         super(activity);
         initStuff(activity, eventListener, locationProvider);
     }

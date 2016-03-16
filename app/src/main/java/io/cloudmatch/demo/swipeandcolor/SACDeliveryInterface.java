@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.pinchandview;
+package io.cloudmatch.demo.swipeandcolor;
 
 /*
- * This interface is used to notify the activity that a match has been successfully setup.
+ * Interface used to notify a listener that a rotation message has been received
  */
-public interface PinchAndViewOnMatchedInterface {
-    String IMAGE_HEIGHT = "imgHeight";
+public interface SACDeliveryInterface {
+    String ROTATION_MESSAGE = "rotation";
 
-    void onMatched(String groupId, int groupSize, PinchAndViewScreenPositions position);
-
-    void onOtherMeasurements(int othersImageHeight);
+    void onRotateMessage();
 }

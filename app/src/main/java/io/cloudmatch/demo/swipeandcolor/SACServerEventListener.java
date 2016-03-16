@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.pinchanddrag;
+package io.cloudmatch.demo.swipeandcolor;
 
 import android.app.Activity;
 import android.util.Log;
@@ -34,23 +34,22 @@ import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
 import io.cloudmatch.demo.R;
 
 /*
- * Implementation of the OnCloudMatchEvent interface from CloudMatch. Will receive callbacks upon server events.
- * This implementation also gets the context and two interfaces in the constructor.
- * A lot of these methods are not used in this application and are therefore left empty. 
+ * Implementation of the OnCloudMatchEvent interface from the CloudMatch. This class also takes two listeners,
+ * see constructor. As usual, many callbacks are not implemented as they're not required in this application.
  */
-public class PinchAndDragServerEventListener implements CloudMatchEventListener {
-    private static final String TAG = PinchAndDragServerEventListener.class.getSimpleName();
+public class SACServerEventListener implements CloudMatchEventListener {
+    private static final String TAG = SACServerEventListener.class.getSimpleName();
 
     private final Activity mActivity;
-    private final PinchAndDragMatchedInterface mMatchedListener;
-    private final PinchAndDragDeliveryInterface mDeliveryListener;
+    private final SACMatchedInterface mMatchedListener;
+    private final SACDeliveryInterface mRotationListener;
 
-    public PinchAndDragServerEventListener(final Activity activity,
-                                           final PinchAndDragMatchedInterface matchedInterface,
-                                           final PinchAndDragDeliveryInterface deliveryInterface) {
+    public SACServerEventListener(final Activity activity,
+                                  final SACMatchedInterface matchedInterface,
+                                  final SACDeliveryInterface rotationListener) {
         mActivity = activity;
         mMatchedListener = matchedInterface;
-        mDeliveryListener = deliveryInterface;
+        mRotationListener = rotationListener;
     }
 
     @Override
@@ -70,20 +69,24 @@ public class PinchAndDragServerEventListener implements CloudMatchEventListener 
         Log.d(TAG, "onConnectionError");
         String msg = "connection error";
         if (error instanceof CloudMatchInvalidCredentialException) {
-            msg = "The API Key and APP Id that you are using seem to be incorrect. Are you running the latest version of CloudMatch Demo?";
+            msg = "The API Key and APP Id that you are using seem to be incorrect."
+                    + " Are you running the latest version of CloudMatch Demo?";
         } else if (error instanceof CloudMatchConnectionException) {
             msg = error.getMessage();
         }
         Toast.makeText(mActivity, msg, Toast.LENGTH_LONG).show();
     }
 
-    // if a successful match is established, will notify the listener through the interface.
+    // This method simply notifies the listener if the match was successful.
     @Override
     public void onMatchResponse(final MatchResponse response) {
         Log.d(TAG, "onMatchResponse: " + response);
         switch (response.mOutcome) {
             case ok:
-                mMatchedListener.onMatched(response.mGroupId);
+                final int groupSize = response.mGroupSize;
+                final int myIdInGroup = response.mMyIdInGroup;
+                final String groupId = response.mGroupId;
+                mMatchedListener.onMatched(groupId, groupSize, myIdInGroup);
                 break;
             case fail:
                 // is there a reason?
@@ -123,33 +126,17 @@ public class PinchAndDragServerEventListener implements CloudMatchEventListener 
         // do nothing
     }
 
-    // When a new delivery arrives, this method parses it and notifies the listener through the proper interface
-    // call.
+    // This callback will notify the listener if a rotation message has been received.
     @Override
     public void onMatcheeDelivery(final MatcheeDelivery delivery) {
         try {
             final JSONObject json = new JSONObject(delivery.mPayload);
-            if (json.has(PinchAndDragDeliveryInterface.COIN_TOSS)) {
-                final Double coinToss = json.getDouble(PinchAndDragDeliveryInterface.COIN_TOSS);
-                Log.d(TAG, "matchee delivery: CoinToss, " + coinToss);
-                mDeliveryListener.onCoinToss(coinToss);
-            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_DRAG)) {
-                final String shape = json.getString(PinchAndDragDeliveryInterface.SHAPE_DRAG);
-                Log.d(TAG, "matchee delivery, shape drag other side: " + shape);
-                mDeliveryListener.onShapeDragInitiatedOnOtherSide(shape);
-            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_ACQUISITION_ACK)) {
-                Log.d(TAG, "matchee delivery, shape acquisition other side.");
-                final String shape = json.getString(PinchAndDragDeliveryInterface.SHAPE_ACQUISITION_ACK);
-                mDeliveryListener.onShapeReceivedOnOtherSide(shape);
-            } else if (json.has(PinchAndDragDeliveryInterface.SHAPE_DRAG_STOPPED)) {
-                Log.d(TAG, "matchee delivery, shape drag stopped other side.");
-                mDeliveryListener.onShapeDragStoppedOnOtherSide();
-            } else {
-                Log.d(TAG, "matchee delivery, not sure what it was: " + delivery);
+            if (json.has(SACDeliveryInterface.ROTATION_MESSAGE)) {
+                Log.d(TAG, "matchee delivery: rotation");
+                mRotationListener.onRotateMessage();
             }
         } catch (final JSONException e) {
-            Log.d(TAG, "JSONException caught: " + e);
-            // TODO: show toast?
+            Log.d(TAG, "JSONException! " + e);
         }
     }
 

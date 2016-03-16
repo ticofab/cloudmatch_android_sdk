@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.swipeandcolor;
+package io.cloudmatch.demo.pinchanddrag;
 
 /*
- * Interface to notify the listener that we have been matched in a group.
+ * Interface to notify the activity of an established match.
  */
-public interface SwipeAndColorMatchedInterface {
-    void onMatched(String groupId, int groupSize, int myIdInGroup);
+public interface PADMatchedInterface {
+    void onMatched(String groupId);
 
     void onMatcheeLeft();
 }

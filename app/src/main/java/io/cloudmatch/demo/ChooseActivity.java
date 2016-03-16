@@ -22,9 +22,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import io.cloudmatch.demo.pinchanddrag.PinchAndDragActivity;
-import io.cloudmatch.demo.pinchandview.PinchAndViewActivity;
-import io.cloudmatch.demo.swipeandcolor.SwipeAndColorActivity;
+import io.cloudmatch.demo.pinchanddrag.PADActivity;
+import io.cloudmatch.demo.pinchandview.PAVActivity;
+import io.cloudmatch.demo.swipeandcolor.SACActivity;
 
 /*
  * From this activity we can choose one of the demos.
@@ -39,19 +39,19 @@ public class ChooseActivity extends Activity {
 
     // from view
     public void onPinchDemoClick(final View v) {
-        final Intent intent = new Intent(this, PinchAndViewActivity.class);
+        final Intent intent = new Intent(this, PAVActivity.class);
         startActivity(intent);
     }
 
     // from view
     public void onPinchAndDragDemoClick(final View v) {
-        final Intent intent = new Intent(this, PinchAndDragActivity.class);
+        final Intent intent = new Intent(this, PADActivity.class);
         startActivity(intent);
     }
 
     // from view
     public void onSwipeAndColorDemoClick(final View v) {
-        final Intent intent = new Intent(this, SwipeAndColorActivity.class);
+        final Intent intent = new Intent(this, SACActivity.class);
         startActivity(intent);
     }
 

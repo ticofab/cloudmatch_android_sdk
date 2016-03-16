@@ -6,15 +6,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
-import io.cloudmatch.demo.pinchanddrag.PinchAndDragDeliveryHelper;
+import io.cloudmatch.demo.pinchanddrag.PADDeliveryHelper;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
 
-public class PinchAndViewDeliveryHelper {
-    private static final String TAG = PinchAndDragDeliveryHelper.class.getSimpleName();
+public class PAVDeliveryHelper {
+    private static final String TAG = PADDeliveryHelper.class.getSimpleName();
 
     final CloudMatchPinchViewHorizontal mPinchView;
 
-    public PinchAndViewDeliveryHelper(CloudMatchPinchViewHorizontal pinchView) {
+    public PAVDeliveryHelper(CloudMatchPinchViewHorizontal pinchView) {
         mPinchView = pinchView;
     }
 
@@ -22,7 +22,7 @@ public class PinchAndViewDeliveryHelper {
         // deliver message to other
         final JSONObject json = new JSONObject();
         try {
-            json.put(PinchAndViewOnMatchedInterface.IMAGE_HEIGHT, imageHeight);
+            json.put(PAVOnMatchedInterface.IMAGE_HEIGHT, imageHeight);
             mPinchView.deliverPayloadToGroup(json.toString(), groupId, null);
         } catch (final JSONException e) {
             Log.d(TAG, "JSONException caught: " + e);
