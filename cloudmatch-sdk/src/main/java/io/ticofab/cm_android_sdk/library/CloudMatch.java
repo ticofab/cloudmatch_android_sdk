@@ -39,7 +39,6 @@ import io.ticofab.cm_android_sdk.library.helpers.StringHelper;
 import io.ticofab.cm_android_sdk.library.helpers.UniqueIDHelper;
 import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
 import io.ticofab.cm_android_sdk.library.listeners.CloudMatchListener;
-import io.ticofab.cm_android_sdk.library.location.LocationController;
 import io.ticofab.cm_android_sdk.library.models.inputs.DeliveryInput;
 
 public class CloudMatch {
@@ -63,7 +62,7 @@ public class CloudMatch {
         mActivity = activity;
         mListener = clientListener;
 
-        LocationController.init(mActivity);
+        //LocationController.init(mActivity);
         Connector.init(mActivity, StringHelper.getApiKey(activity), StringHelper.getAppId(activity));
         Matcher.init(mActivity);
     }
@@ -75,7 +74,6 @@ public class CloudMatch {
      */
     public static void onResume() throws CloudMatchNotInitializedException {
         checkInitializationOrThrow();
-        LocationController.connect();
     }
 
     /**
@@ -85,7 +83,6 @@ public class CloudMatch {
      */
     public static void onPause() throws CloudMatchNotInitializedException {
         checkInitializationOrThrow();
-        LocationController.disconnect();
     }
 
     /**
@@ -97,7 +94,6 @@ public class CloudMatch {
     public static void connect() throws LocationServicesUnavailableException, CloudMatchNotInitializedException {
 
         checkInitializationOrThrow();
-        LocationController.checkAvailabilityOrThrow(mActivity);
 
         if (mWSClient != null && mWSClient.isConnected()) {
             mWSClient.disconnect();
@@ -198,7 +194,7 @@ public class CloudMatch {
      * Closes the connection with the server, disconnecting the WebSocketClient object.
      */
     public static void closeConnection() {
-        LocationController.disconnect();
+        //LocationController.disconnect();
         if (mWSClient != null && mWSClient.isConnected()) {
             mWSClient.disconnect();
         }

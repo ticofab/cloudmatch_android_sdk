@@ -17,7 +17,6 @@
 package io.ticofab.cm_android_sdk.library.helpers;
 
 import android.app.Activity;
-import android.location.Location;
 
 import com.codebutler.android_websockets.WebSocketClient;
 
@@ -26,7 +25,6 @@ import org.json.JSONException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
 import io.ticofab.cm_android_sdk.library.exceptions.LocationServicesUnavailableException;
-import io.ticofab.cm_android_sdk.library.location.LocationController;
 import io.ticofab.cm_android_sdk.library.models.inputs.GroupComMatchInput;
 import io.ticofab.cm_android_sdk.library.models.inputs.GroupCreateMatchInput;
 import io.ticofab.cm_android_sdk.library.models.inputs.base.MatchInput;
@@ -54,16 +52,10 @@ public class Matcher {
     public static void sendGroupCreateMatchRequest(final GroupCreateMatchInput matchInput)
             throws LocationServicesUnavailableException {
 
-        LocationController.checkAvailabilityOrThrow(mActivity);
-
-        final Location currentLocation = LocationController.getLastLocation();
-        if (currentLocation == null) {
-            throw new LocationServicesUnavailableException("Location Services are unavailable.");
-        }
-
+        // TODO the client needs to pass these two:
         // initialize match request with mandatory stuff
-        matchInput.mLatitude = currentLocation.getLatitude();
-        matchInput.mLongitude = currentLocation.getLongitude();
+        // matchInput.mLatitude = currentLocation.getLatitude();
+        // matchInput.mLongitude = currentLocation.getLongitude();
 
         sendMatchRequest(matchInput);
     }
