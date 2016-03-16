@@ -16,19 +16,21 @@
 
 package io.cloudmatch.demo.pinchandview;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,9 +41,9 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-
-import java.net.URISyntaxException;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -49,8 +51,8 @@ import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
-import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
+import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
 
@@ -58,8 +60,14 @@ import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
  * This demo lets the user pair two devices, pinching them across the long side. The devices
  * will understand their relative position (left or right) and the corresponding image will be shown.
  */
-public class PinchAndViewDemoActivity extends Activity {
+public class PinchAndViewDemoActivity extends FragmentActivity implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = PinchAndViewDemoActivity.class.getSimpleName();
+
+    @Bind(R.id.image_position) ImageView mImage;
+    @Bind(R.id.container_view) RelativeLayout mContainerRL;
+    @Bind(R.id.pinch_view) CloudMatchPinchViewHorizontal mPinchView;
+    @Bind(R.id.pinchandview_pinch_instruction_iv) ImageView mPinchInstructionsIcon;
 
     int mIVTopY;
     int mIVTopX;
@@ -71,7 +79,23 @@ public class PinchAndViewDemoActivity extends Activity {
     int mHalfScreenY;
     Point mScreenDimensions;
 
-    private PinchAndViewDemoScreenPositions mPosition;
+    MyRectView mMyRectView = new MyRectView(this);
+
+    private final Handler mHandler = new Handler();
+    private final Runnable mRemoveViewRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            mContainerRL.removeView(mMyRectView);
+        }
+    };
+
+    PinchAndViewDemoScreenPositions mPosition;
+    PinchAndViewDeliveryHelper mPinchAndViewDeliveryHelper = new PinchAndViewDeliveryHelper(mPinchView);
+
+    // location stuff
+    Location mLastLocation;
+    GoogleApiClient mGoogleApiClient;
 
     /*
      * Implementation of the PinchOnMatchedInterface. Upon a successful matching, the corresponding image is shown.
@@ -92,7 +116,7 @@ public class PinchAndViewDemoActivity extends Activity {
             mPosition = position;
 
             // send message to the other guy with my data
-            PinchAndViewDeliveryHelper.sendImageHeight(groupId, mIVHeigth);
+            mPinchAndViewDeliveryHelper.sendImageHeight(groupId, mIVHeigth);
         }
 
         @Override
@@ -138,25 +162,6 @@ public class PinchAndViewDemoActivity extends Activity {
         }
     };
 
-    @Bind(R.id.image_position) ImageView mImage;
-    @Bind(R.id.container_view) RelativeLayout mContainerRL;
-    @Bind(R.id.pinch_view) CloudMatchPinchViewHorizontal mPinchView;
-    @Bind(R.id.pinchandview_pinch_instruction_iv) ImageView mPinchInstructionsIcon;
-
-    private final PinchAndViewDemoServerEvent mPinchDemoSEL = new PinchAndViewDemoServerEvent(this,
-            mMatchedInterface);
-
-    MyRectView mMyRectView = new MyRectView(this);
-
-    private final Handler mHandler = new Handler();
-    private final Runnable mRemoveViewRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            mContainerRL.removeView(mMyRectView);
-        }
-    };
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -176,9 +181,10 @@ public class PinchAndViewDemoActivity extends Activity {
         mHalfScreenY = mScreenDimensions.y / 2;
         mHalfScreenX = mScreenDimensions.x / 2;
 
-        if (servicesConnected()) {
-            initCloudMatch();
-        }
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     public void initCloudMatch() {
@@ -186,21 +192,28 @@ public class PinchAndViewDemoActivity extends Activity {
         // at a different stage.
         try {
             // get the CloudMatchView object (defined in the xml layout) and set its interface.
-            // TODO: create LocationProvider
-            mPinchView.initCloudMatch(this, mPinchDemoSEL, null, mPinchDemoSMVI);
+            mPinchView.initCloudMatch(this,
+                    new PinchAndViewDemoServerEvent(this, mMatchedInterface),
+                    new LocationProvider() {
+
+                        @Override
+                        public Location getLocation() {
+                            if (mGoogleApiClient.isConnected()) {
+                                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                            }
+                            return mLastLocation;
+                        }
+                    },
+                    mPinchDemoSMVI);
             mPinchView.connect();
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
 
-    /*
-     * Closing the connection in the onDestroy() method.
-     */
     @Override
     public void onDestroy() {
+        // Closing the cloudmatch connection in the onDestroy() method.
         mPinchView.closeConnection();
         super.onDestroy();
     }
@@ -324,60 +337,81 @@ public class PinchAndViewDemoActivity extends Activity {
     // *******************************************************************
     // The following code comes from Google's guide to check for
     // the presence of GooglePlayServices.
+    // https://developers.google.com/android/guides/api-client
     // *******************************************************************
-    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    // Request code to use when launching the resolution activity
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
+    // Unique tag for the error dialog fragment
+    private static final String DIALOG_ERROR = "dialog_error";
+    // Bool to track whether the app is already resolving an error
+    private boolean mResolvingError = false;
 
-    public static class ErrorDialogFragment extends DialogFragment {
-        private Dialog mDialog;
-
-        public ErrorDialogFragment() {
-            super();
-            mDialog = null;
-        }
-
-        public void setDialog(final Dialog dialog) {
-            mDialog = dialog;
-        }
-
-        @Override
-        public Dialog onCreateDialog(final Bundle savedInstanceState) {
-            return mDialog;
-        }
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        initCloudMatch();
     }
 
     @Override
-    protected void onActivityResult(
-            final int requestCode, final int resultCode, final Intent data) {
-        switch (requestCode) {
-            case CONNECTION_FAILURE_RESOLUTION_REQUEST:
-                switch (resultCode) {
-                    case Activity.RESULT_OK:
-                        if (servicesConnected()) {
-                            initCloudMatch();
-                        }
-                        break;
-                    default:
-                        // nothing we can do.
-                        break;
-                }
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        if (mResolvingError) {
+            // Already attempting to resolve an error.
+            return;
+        } else if (result.hasResolution()) {
+            try {
+                mResolvingError = true;
+                result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+            } catch (IntentSender.SendIntentException e) {
+                // There was an error with the resolution intent. Try again.
+                mGoogleApiClient.connect();
+            }
+        } else {
+            // Show dialog using GoogleApiAvailability.getErrorDialog()
+            showErrorDialog(result.getErrorCode());
+            mResolvingError = true;
         }
     }
 
-    private boolean servicesConnected() {
-        final int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (ConnectionResult.SUCCESS == errorCode) {
-            return true;
-        } else {
-            final Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                    errorCode, this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+    // The rest of this code is all about building the error dialog
 
-            if (errorDialog != null) {
-                final ErrorDialogFragment errorFragment = new ErrorDialogFragment();
-                errorFragment.setDialog(errorDialog);
-                errorFragment.show(getFragmentManager(), "Location Updates");
-            }
+    /* Creates a dialog for an error message */
+    private void showErrorDialog(int errorCode) {
+        // Create a fragment for the error dialog
+        ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
+        // Pass the error that should be displayed
+        Bundle args = new Bundle();
+        args.putInt(DIALOG_ERROR, errorCode);
+        dialogFragment.setArguments(args);
+        dialogFragment.show(getSupportFragmentManager(), "errordialog");
 
-            return false;
+    }
+
+    /* Called from ErrorDialogFragment when the dialog is dismissed. */
+    public void onDialogDismissed() {
+        mResolvingError = false;
+    }
+
+    /* A fragment to display an error dialog */
+    public static class ErrorDialogFragment extends DialogFragment {
+        public ErrorDialogFragment() {
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Get the error code and retrieve the appropriate dialog
+            int errorCode = this.getArguments().getInt(DIALOG_ERROR);
+            return GoogleApiAvailability.getInstance().getErrorDialog(
+                    this.getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            ((PinchAndViewDemoActivity) getActivity()).onDialogDismissed();
         }
     }
 }

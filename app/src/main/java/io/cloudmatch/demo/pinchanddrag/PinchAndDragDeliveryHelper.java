@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
+import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
 
 /*
  * This class encapsulates the logic to create payload to deliver to the other devices.
@@ -29,12 +30,18 @@ import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedExcept
 public class PinchAndDragDeliveryHelper {
     private static final String TAG = PinchAndDragDeliveryHelper.class.getSimpleName();
 
+    final CloudMatchPinchViewHorizontal mPinchView;
+
+    public PinchAndDragDeliveryHelper(CloudMatchPinchViewHorizontal pinchView) {
+        mPinchView = pinchView;
+    }
+
     public void sendShapeDragStart(final String groupId, final String shape) {
         // deliver message to other with the right tag
         final JSONObject json = new JSONObject();
         try {
             json.put(PinchAndDragDeliveryInterface.SHAPE_DRAG, shape);
-            CloudMatch.deliverPayloadToGroup(json.toString(), groupId, null);
+            mPinchView.deliverPayloadToGroup(json.toString(), groupId, null);
         } catch (final JSONException e) {
             Log.d(TAG, "JSONException caught: " + e);
             // TODO: toast?
@@ -48,7 +55,7 @@ public class PinchAndDragDeliveryHelper {
         final JSONObject json = new JSONObject();
         try {
             json.put(PinchAndDragDeliveryInterface.SHAPE_DRAG_STOPPED, 0);
-            CloudMatch.deliverPayloadToGroup(json.toString(), groupId, null);
+            mPinchView.deliverPayloadToGroup(json.toString(), groupId, null);
         } catch (final JSONException e) {
             Log.d(TAG, "JSONException caught: " + e);
             // TODO: toast?
@@ -62,7 +69,7 @@ public class PinchAndDragDeliveryHelper {
         final JSONObject json = new JSONObject();
         try {
             json.put(PinchAndDragDeliveryInterface.SHAPE_ACQUISITION_ACK, shape);
-            CloudMatch.deliverPayloadToGroup(json.toString(), groupId, null);
+            mPinchView.deliverPayloadToGroup(json.toString(), groupId, null);
         } catch (final JSONException e) {
             Log.d(TAG, "JSONException caught: " + e);
             // TODO: toast?
@@ -76,7 +83,7 @@ public class PinchAndDragDeliveryHelper {
         final JSONObject json = new JSONObject();
         try {
             json.put(PinchAndDragDeliveryInterface.COIN_TOSS, cointoss);
-            CloudMatch.deliverPayloadToGroup(json.toString(), groupId, null);
+            mPinchView.deliverPayloadToGroup(json.toString(), groupId, null);
         } catch (final JSONException e) {
             Log.d(TAG, "JSONException caught: " + e);
             // TODO: toast?

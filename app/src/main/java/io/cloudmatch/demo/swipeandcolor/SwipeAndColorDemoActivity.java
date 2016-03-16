@@ -16,39 +16,53 @@
 
 package io.cloudmatch.demo.swipeandcolor;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.DialogInterface;
+import android.content.IntentSender;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.cloudmatch.demo.R;
+import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
 
 /*
  * This demo lets you match up to 8 devices using a single swipe, and each one will display a different color.
  * Tapping on any device will make all of them rotate color.
  */
-public class SwipeAndColorDemoActivity extends Activity {
+public class SwipeAndColorDemoActivity extends FragmentActivity implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = SwipeAndColorDemoActivity.class.getSimpleName();
+
+    @Bind(R.id.color_image_iv) ImageView mColorIV;
+    @Bind(R.id.container_view) RelativeLayout mContainer;
 
     int[] mColorTable;
     int mCurrentColorIndex;
     int mGroupSize;
+
+    // location stuff
+    Location mLastLocation;
+    GoogleApiClient mGoogleApiClient;
 
     // Implementation of the matched interface. When the device is matched in a group, this callback will enable
     // the ImageView and give it an inital color corresponding to the color table. It will then set a click
@@ -75,7 +89,7 @@ public class SwipeAndColorDemoActivity extends Activity {
                     try {
                         final JSONObject json = new JSONObject();
                         json.put(SwipeAndColorDemoDeliveryInterface.ROTATION_MESSAGE, 1);
-                        CloudMatch.deliverPayloadToGroup(json.toString(), groupId, null);
+                        mDrawingLayout.deliverPayload(json.toString(), groupId);
                         setNewColor();
                     } catch (final JSONException e) {
                         // TODO Auto-generated catch block
@@ -116,9 +130,8 @@ public class SwipeAndColorDemoActivity extends Activity {
         }
     };
 
-    private ImageView mColorIV;
-    private SwipeAndColorDemoDrawingLayout mDrawingLayout;
-    private final SwipeAndColorDemoServerEvent mSwipeAndColorDemoSEL = new SwipeAndColorDemoServerEvent(this,
+    SwipeAndColorDemoDrawingLayout mDrawingLayout;
+    SwipeAndColorDemoServerEvent mSwipeAndColorDemoSEL = new SwipeAndColorDemoServerEvent(this,
             mMatchedInterface, mRotationInterface);
 
     // triggers a new color on screen.
@@ -132,93 +145,105 @@ public class SwipeAndColorDemoActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_swipe_and_color_demo);
+        ButterKnife.bind(this);
 
-        mColorIV = (ImageView) findViewById(R.id.color_image_iv);
         mColorIV.setBackgroundColor(Color.TRANSPARENT);
-        mDrawingLayout = (SwipeAndColorDemoDrawingLayout) findViewById(R.id.swipe_and_color_drawing_layout);
 
-        if (servicesConnected()) {
-            initCloudMatch();
-        }
-    }
-
-    public void initCloudMatch() {
-        // initializes the CloudMatch. In this case we also immediately connect, but it could be done also at a
-        // different stage.
-        try {
-            CloudMatch.init(this, mSwipeAndColorDemoSEL);
-            CloudMatch.connect();
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /*
-     * Closing the connection in the onDestroy() method.
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        CloudMatch.closeConnection();
+        // create layout programmatically so we can pass the activity as context
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
+        mDrawingLayout = new SwipeAndColorDemoDrawingLayout(this, mSwipeAndColorDemoSEL, new LocationProvider() {
+            @Override
+            public Location getLocation() {
+                if (mGoogleApiClient.isConnected()) {
+                    mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                }
+                return mLastLocation;
+            }
+        });
+        mDrawingLayout.setLayoutParams(params);
+        mDrawingLayout.setBackgroundColor(Color.TRANSPARENT);
+        mContainer.addView(mDrawingLayout);
     }
 
     // *******************************************************************
     // The following code comes from Google's guide to check for
     // the presence of GooglePlayServices.
+    // https://developers.google.com/android/guides/api-client
     // *******************************************************************
-    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    // Request code to use when launching the resolution activity
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
+    // Unique tag for the error dialog fragment
+    private static final String DIALOG_ERROR = "dialog_error";
+    // Bool to track whether the app is already resolving an error
+    private boolean mResolvingError = false;
 
-    public static class ErrorDialogFragment extends DialogFragment {
-        private Dialog mDialog;
-
-        public ErrorDialogFragment() {
-            super();
-            mDialog = null;
-        }
-
-        public void setDialog(final Dialog dialog) {
-            mDialog = dialog;
-        }
-
-        @Override
-        public Dialog onCreateDialog(final Bundle savedInstanceState) {
-            return mDialog;
-        }
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
     }
 
     @Override
-    protected void onActivityResult(
-            final int requestCode, final int resultCode, final Intent data) {
-        switch (requestCode) {
-            case CONNECTION_FAILURE_RESOLUTION_REQUEST:
-                switch (resultCode) {
-                    case Activity.RESULT_OK:
-                        if (servicesConnected()) {
-                            initCloudMatch();
-                        }
-                        break;
-                    default:
-                        // nothing we can do.
-                        break;
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
+        if (!mResolvingError) {
+            if (result.hasResolution()) {
+                try {
+                    mResolvingError = true;
+                    result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+                } catch (IntentSender.SendIntentException e) {
+                    // There was an error with the resolution intent. Try again.
+                    mGoogleApiClient.connect();
                 }
+            } else {
+                // Show dialog using GoogleApiAvailability.getErrorDialog()
+                showErrorDialog(result.getErrorCode());
+                mResolvingError = true;
+            }
         }
     }
 
-    private boolean servicesConnected() {
-        final int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (ConnectionResult.SUCCESS == errorCode) {
-            return true;
-        } else {
-            final Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                    errorCode, this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+    // The rest of this code is all about building the error dialog
 
-            if (errorDialog != null) {
-                final ErrorDialogFragment errorFragment = new ErrorDialogFragment();
-                errorFragment.setDialog(errorDialog);
-                errorFragment.show(getFragmentManager(), "Location Updates");
-            }
+    /* Creates a dialog for an error message */
+    private void showErrorDialog(int errorCode) {
+        // Create a fragment for the error dialog
+        ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
+        // Pass the error that should be displayed
+        Bundle args = new Bundle();
+        args.putInt(DIALOG_ERROR, errorCode);
+        dialogFragment.setArguments(args);
+        dialogFragment.show(getSupportFragmentManager(), "errordialog");
 
-            return false;
+    }
+
+    /* Called from ErrorDialogFragment when the dialog is dismissed. */
+    public void onDialogDismissed() {
+        mResolvingError = false;
+    }
+
+    /* A fragment to display an error dialog */
+    public static class ErrorDialogFragment extends android.support.v4.app.DialogFragment {
+        public ErrorDialogFragment() {
+        }
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Get the error code and retrieve the appropriate dialog
+            int errorCode = this.getArguments().getInt(DIALOG_ERROR);
+            return GoogleApiAvailability.getInstance().getErrorDialog(
+                    this.getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            ((SwipeAndColorDemoActivity) getActivity()).onDialogDismissed();
         }
     }
 }

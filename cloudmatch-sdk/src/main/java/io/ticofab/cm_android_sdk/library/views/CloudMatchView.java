@@ -84,14 +84,13 @@ public abstract class CloudMatchView extends View {
      * @param clientListener   Implementation of the OnCloudMatchEvent interface. Will be used to notify any network communication.
      * @param locationProvider Implementation of LocationProvider, needs to serve coordinates when needed
      * @param clientInterface  Implementation of the CloudMatchViewInterface
-     * @throws URISyntaxException
      * @throws PackageManager.NameNotFoundException
      */
     public void initCloudMatch(final Activity activity,
                                final OnCloudMatchEvent clientListener,
                                final LocationProvider locationProvider,
                                final CloudMatchViewInterface clientInterface)
-            throws URISyntaxException, PackageManager.NameNotFoundException {
+            throws PackageManager.NameNotFoundException {
         mActivity = activity;
         mListener = clientListener;
         mClientInterface = clientInterface;
@@ -105,9 +104,14 @@ public abstract class CloudMatchView extends View {
         final CloudMatchListener myListener = new CloudMatchListener(mActivity, mListener, myMessagesHandler);
 
         Connector connector = new Connector(mActivity, StringHelper.getApiKey(mActivity), StringHelper.getAppId(mActivity));
-        final URI uri = connector.getConnectionUri();
-        mWSClient = new WebSocketClient(uri, myListener, null);
-        mMatcher = new Matcher(mWSClient, locationProvider);
+        final URI uri;
+        try {
+            uri = connector.getConnectionUri();
+            mWSClient = new WebSocketClient(uri, myListener, null);
+            mMatcher = new Matcher(mWSClient, locationProvider);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

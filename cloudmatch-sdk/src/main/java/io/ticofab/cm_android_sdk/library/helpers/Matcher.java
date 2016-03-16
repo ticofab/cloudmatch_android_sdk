@@ -16,6 +16,8 @@
 
 package io.ticofab.cm_android_sdk.library.helpers;
 
+import android.location.Location;
+
 import com.codebutler.android_websockets.WebSocketClient;
 
 import org.json.JSONException;
@@ -50,8 +52,9 @@ public class Matcher {
             throws LocationServicesUnavailableException {
 
         // initialize match request with mandatory stuff
-        matchInput.mLatitude = mLocationProvider.getLatitude();
-        matchInput.mLongitude = mLocationProvider.getLongitude();
+        Location location = mLocationProvider.getLocation();
+        matchInput.mLatitude = location.getLatitude();
+        matchInput.mLongitude = location.getLongitude();
 
         sendMatchRequest(matchInput);
     }

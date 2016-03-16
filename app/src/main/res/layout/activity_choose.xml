@@ -109,6 +109,7 @@
                 android:onClick="onAboutClick"
                 android:text="@string/about" />
         </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

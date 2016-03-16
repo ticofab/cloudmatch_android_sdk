@@ -1,7 +1,8 @@
 package io.ticofab.cm_android_sdk.library.interfaces;
 
-public interface LocationProvider {
-    Double getLatitude();
+import android.location.Location;
 
-    Double getLongitude();
+public interface LocationProvider {
+
+    Location getLocation();
 }
