@@ -72,7 +72,7 @@ public class PAVActivity extends FragmentActivity implements
     int mIVTopY;
     int mIVTopX;
     int mIVWidth;
-    int mIVHeigth;
+    int mIVHeight;
     int mPointEndX;
     int mPointEndY;
     int mHalfScreenX;
@@ -91,7 +91,7 @@ public class PAVActivity extends FragmentActivity implements
     };
 
     PAVScreenPositions mPosition;
-    PAVDeliveryHelper mPAVDeliveryHelper = new PAVDeliveryHelper(mPinchView);
+    PAVDeliveryHelper mPAVDeliveryHelper;
 
     // location stuff
     Location mLastLocation;
@@ -116,21 +116,21 @@ public class PAVActivity extends FragmentActivity implements
             mPosition = position;
 
             // send message to the other guy with my data
-            mPAVDeliveryHelper.sendImageHeight(groupId, mIVHeigth);
+            mPAVDeliveryHelper.sendImageHeight(groupId, mIVHeight);
         }
 
         @Override
         public void onOtherMeasurements(final int othersImageHeight) {
-            Log.d(TAG, "received measurement: " + othersImageHeight + ", mine is " + mIVHeigth);
-            if (othersImageHeight > mIVHeigth) {
+            Log.d(TAG, "received measurement: " + othersImageHeight + ", mine is " + mIVHeight);
+            if (othersImageHeight > mIVHeight) {
                 // display it as it is
                 displayImage();
             } else {
                 // recalculate positions and dimensions
                 {
-                    mIVHeigth = othersImageHeight;
-                    mIVWidth = mIVHeigth * mScreenDimensions.x / mScreenDimensions.y;
-                    mIVTopY = mPointEndY - (mIVHeigth / 2);
+                    mIVHeight = othersImageHeight;
+                    mIVWidth = mIVHeight * mScreenDimensions.x / mScreenDimensions.y;
+                    mIVTopY = mPointEndY - (mIVHeight / 2);
                     mIVTopX = mPointEndX > mHalfScreenX ? mScreenDimensions.x - mIVWidth : 0;
 
                     displayImage();
@@ -140,7 +140,7 @@ public class PAVActivity extends FragmentActivity implements
         }
 
         private void displayImage() {
-            final LayoutParams params = new LayoutParams(mIVWidth, mIVHeigth);
+            final LayoutParams params = new LayoutParams(mIVWidth, mIVHeight);
             params.setMargins(mIVTopX, mIVTopY, 0, 0);
             mImage.setLayoutParams(params);
             mImage.setVisibility(View.VISIBLE);
@@ -177,8 +177,9 @@ public class PAVActivity extends FragmentActivity implements
             }
         });
 
-        // initialize here or otherwise this will be null
+        // initialize here or otherwise 'this' & the view will be null
         mMyRectView = new MyRectView(this);
+        mPAVDeliveryHelper = new PAVDeliveryHelper(mPinchView);
 
         mScreenDimensions = PAVDisplayHelper.getScreenSize(this);
         mHalfScreenY = mScreenDimensions.y / 2;
@@ -281,21 +282,21 @@ public class PAVActivity extends FragmentActivity implements
             // here we calculate the size and positioning of the image view
             {
                 if (mPointEndY > mHalfScreenY) {
-                    mIVHeigth = (mScreenDimensions.y - mPointEndY) * 2;
-                    mIVTopY = mScreenDimensions.y - mIVHeigth;
+                    mIVHeight = (mScreenDimensions.y - mPointEndY) * 2;
+                    mIVTopY = mScreenDimensions.y - mIVHeight;
                 } else {
-                    mIVHeigth = mPointEndY * 2;
+                    mIVHeight = mPointEndY * 2;
                     mIVTopY = 0;
                 }
 
-                mIVWidth = mIVHeigth * mScreenDimensions.x / mScreenDimensions.y;
+                mIVWidth = mIVHeight * mScreenDimensions.x / mScreenDimensions.y;
                 if (mPointEndX > mHalfScreenX) {
                     mIVTopX = mScreenDimensions.x - mIVWidth;
                 } else {
                     mIVTopX = 0;
                 }
 
-                Log.d(TAG, "iv height: " + mIVHeigth + ", width: " + mIVWidth + ", y: " + mIVTopY + ", x: "
+                Log.d(TAG, "iv height: " + mIVHeight + ", width: " + mIVWidth + ", y: " + mIVTopY + ", x: "
                         + mIVTopX);
             }
         }

@@ -98,10 +98,10 @@ public class PADActivity extends FragmentActivity implements
     boolean mIHaveSquare;
     Double mCoinTossMyValue;
     MyCircleView mMyCircleView;
+    PADDeliveryHelper mPNDDeliveryHelper;
     String mShapeBeingDraggedOnOtherSide = "";
     final Handler mWaitingForDragHandler = new Handler();
     final Handler mShapeVisibilityHandler = new Handler();
-    final PADDeliveryHelper mPNDDeliveryHelper = new PADDeliveryHelper(mPinchView);
 
     // location stuff
     Location mLastLocation;
@@ -209,8 +209,9 @@ public class PADActivity extends FragmentActivity implements
         setContentView(R.layout.activity_pinch_and_drag_demo);
         ButterKnife.bind(this);
 
-        // initialize here or otherwise 'this' will be null
+        // initialize here or otherwise 'this' & the view will be null
         mMyCircleView = new MyCircleView(this);
+        mPNDDeliveryHelper = new PADDeliveryHelper(mPinchView);
 
         // init google api client
         mGoogleApiClient = new GoogleApiClient.Builder(this)
