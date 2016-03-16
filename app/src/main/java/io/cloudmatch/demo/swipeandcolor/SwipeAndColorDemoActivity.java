@@ -165,6 +165,19 @@ public class SwipeAndColorDemoActivity extends FragmentActivity implements
         mDrawingLayout.setLayoutParams(params);
         mDrawingLayout.setBackgroundColor(Color.TRANSPARENT);
         mContainer.addView(mDrawingLayout);
+
+        // init google api client
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .enableAutoManage(this, this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    public void onDestroy() {
+        mDrawingLayout.onDestroy();
+        super.onDestroy();
     }
 
     // *******************************************************************

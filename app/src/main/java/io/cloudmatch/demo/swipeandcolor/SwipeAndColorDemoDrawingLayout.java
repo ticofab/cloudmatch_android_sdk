@@ -27,6 +27,7 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import io.cloudmatch.demo.R;
@@ -73,6 +74,7 @@ public class SwipeAndColorDemoDrawingLayout extends RelativeLayout {
         mSwipeAllSidesView = (CloudMatchSwipeViewAllSides) findViewById(R.id.swipe_and_color_swipe_view);
         try {
             mSwipeAllSidesView.initCloudMatch(activity, eventListener, locationProvider, cloudMatchViewInterface);
+            mSwipeAllSidesView.connect();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -165,6 +167,10 @@ public class SwipeAndColorDemoDrawingLayout extends RelativeLayout {
 
     public void deliverPayload(String payload, String groupId) {
         mSwipeAllSidesView.deliverPayloadToGroup(payload, groupId, null);
+    }
+
+    public void onDestroy() {
+        mSwipeAllSidesView.closeConnection();
     }
 
     private CloudMatchViewInterface cloudMatchViewInterface = new CloudMatchViewInterface() {

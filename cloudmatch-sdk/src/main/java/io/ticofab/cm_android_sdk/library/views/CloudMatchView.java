@@ -215,7 +215,7 @@ public abstract class CloudMatchView extends View {
      * Closes the connection with the server, disconnecting the WebSocketClient object.
      */
     public void closeConnection() {
-        if (mWSClient.isConnected()) {
+        if (mWSClient != null && mWSClient.isConnected()) {
             mWSClient.disconnect();
         }
     }

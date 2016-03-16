@@ -97,8 +97,8 @@ public class PinchAndDragDemoActivity extends FragmentActivity implements
     boolean mIHaveCircle;
     boolean mIHaveSquare;
     Double mCoinTossMyValue;
+    MyCircleView mMyCircleView;
     String mShapeBeingDraggedOnOtherSide = "";
-    MyCircleView mMyCircleView = new MyCircleView(this);
     final Handler mWaitingForDragHandler = new Handler();
     final Handler mShapeVisibilityHandler = new Handler();
     final PinchAndDragDeliveryHelper mPNDDeliveryHelper = new PinchAndDragDeliveryHelper(mPinchView);
@@ -203,12 +203,21 @@ public class PinchAndDragDemoActivity extends FragmentActivity implements
         }
     };
 
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pinch_and_drag_demo);
         ButterKnife.bind(this);
+
+        // initialize here or otherwise 'this' will be null
+        mMyCircleView = new MyCircleView(this);
+
+        // init google api client
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .enableAutoManage(this, this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     public void initCloudMatch() {

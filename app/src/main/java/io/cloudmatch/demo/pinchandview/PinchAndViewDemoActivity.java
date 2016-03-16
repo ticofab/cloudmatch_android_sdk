@@ -79,7 +79,7 @@ public class PinchAndViewDemoActivity extends FragmentActivity implements
     int mHalfScreenY;
     Point mScreenDimensions;
 
-    MyRectView mMyRectView = new MyRectView(this);
+    MyRectView mMyRectView;
 
     private final Handler mHandler = new Handler();
     private final Runnable mRemoveViewRunnable = new Runnable() {
@@ -177,11 +177,16 @@ public class PinchAndViewDemoActivity extends FragmentActivity implements
             }
         });
 
+        // initialize here or otherwise this will be null
+        mMyRectView = new MyRectView(this);
+
         mScreenDimensions = PinchAndViewDisplayHelper.getScreenSize(this);
         mHalfScreenY = mScreenDimensions.y / 2;
         mHalfScreenX = mScreenDimensions.x / 2;
 
+        // init google api client
         mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
                 .enableAutoManage(this, this)
                 .addApi(LocationServices.API)
                 .build();
@@ -209,6 +214,7 @@ public class PinchAndViewDemoActivity extends FragmentActivity implements
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+        mPinchView.connect();
     }
 
     @Override
