@@ -26,34 +26,29 @@
         </activity>
 
         <activity
-            android:name=".pinchandview.PinchAndViewDemoActivity"
+            android:name=".pinchandview.PAVActivity"
             android:label="@string/title_activity_pinch_demo"
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".pinchanddrag.PinchAndDragDemoActivity"
+            android:name=".pinchanddrag.PADActivity"
             android:label="@string/title_activity_pinch_and_drag_demo"
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".swipeandcolor.SwipeAndColorDemoActivity"
+            android:name=".swipeandcolor.SACActivity"
             android:label="@string/title_activity_swipe_and_color_demo"
             android:screenOrientation="portrait"/>
-
-        <!-- meta for location services -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="6111000"/>
 
         <!-- cloudmatch api key -->
         <meta-data
             android:name="cloudmatch_api_key"
-            android:value="YOUR_API_KEY_HERE"/>
+            android:value="53c26ce3804241acaace8edc59ea1a41"/>
 
         <!-- cloudmatch app id -->
         <meta-data
             android:name="cloudmatch_app_id"
-            android:value="YOUR_APP_ID_HERE"/>
+            android:value="837d7573afd647298351443c81bfe07d"/>
 
     </application>
 

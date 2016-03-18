@@ -24,7 +24,7 @@ import android.view.WindowManager;
 /**
  * Helper to deal with the device's screen technicalities.
  */
-public class PinchAndViewDisplayHelper {
+public class PAVDisplayHelper {
 
     private static float mScreenDensityFactor = -1f;
     private static int mScreenDensityFactorDP = -1;

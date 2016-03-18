@@ -20,7 +20,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import io.ticofab.cm_android_sdk.library.consts.Criteria;
-import io.ticofab.cm_android_sdk.library.views.base.CloudMatchAcrossView4Sides;
 
 /**
  * Custom view to be embedded by the client in its layouts. Will provide Swipe interaction on all screen sides.

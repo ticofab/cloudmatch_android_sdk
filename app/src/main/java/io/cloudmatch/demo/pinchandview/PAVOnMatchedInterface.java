@@ -17,8 +17,12 @@
 package io.cloudmatch.demo.pinchandview;
 
 /*
- * Definitions of positions where a device can find itself in this app. 
+ * This interface is used to notify the activity that a match has been successfully setup.
  */
-public enum PinchAndViewDemoScreenPositions {
-    unknown, left, right
+public interface PAVOnMatchedInterface {
+    String IMAGE_HEIGHT = "imgHeight";
+
+    void onMatched(String groupId, int groupSize, PAVScreenPositions position);
+
+    void onOtherMeasurements(int othersImageHeight);
 }

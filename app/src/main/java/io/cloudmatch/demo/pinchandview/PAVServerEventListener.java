@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.swipeandcolor;
+package io.cloudmatch.demo.pinchandview;
 
 import android.app.Activity;
 import android.util.Log;
@@ -25,7 +25,9 @@ import org.json.JSONObject;
 
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchConnectionException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchInvalidCredentialException;
-import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
+import io.ticofab.cm_android_sdk.library.models.DeviceInScheme;
+import io.ticofab.cm_android_sdk.library.models.PositionScheme;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeDelivery;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeLeftMessage;
 import io.ticofab.cm_android_sdk.library.models.responses.DeliveryResponse;
@@ -34,22 +36,19 @@ import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
 import io.cloudmatch.demo.R;
 
 /*
- * Implementation of the OnCloudMatchEvent interface from the CloudMatch. This class also takes two listeners,
- * see constructor. As usual, many callbacks are not implemented as they're not required in this application.
+ * Implementation of the OnCloudMatchEvent interface in the CloudMatchSDK. It adds some logic for "internal"
+ * communication within this demo.
  */
-public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
-    private static final String TAG = SwipeAndColorDemoServerEvent.class.getSimpleName();
+public class PAVServerEventListener implements CloudMatchEventListener {
+    private static final String TAG = PAVServerEventListener.class.getSimpleName();
 
     private final Activity mActivity;
-    private final SwipeAndColorDemoMatchedInterface mMatchedListener;
-    private final SwipeAndColorDemoDeliveryInterface mRotationListener;
+    private final PAVOnMatchedInterface mMatchedListener;
 
-    public SwipeAndColorDemoServerEvent(final Activity activity,
-                                        final SwipeAndColorDemoMatchedInterface matchedInterface,
-                                        final SwipeAndColorDemoDeliveryInterface rotationListener) {
+    public PAVServerEventListener(final Activity activity,
+                                  final PAVOnMatchedInterface matchedInterface) {
         mActivity = activity;
         mMatchedListener = matchedInterface;
-        mRotationListener = rotationListener;
     }
 
     @Override
@@ -67,26 +66,53 @@ public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
     @Override
     public void onConnectionError(final Exception error) {
         Log.d(TAG, "onConnectionError");
-        String msg = "connection error";
+        String msg = "Connection error";
         if (error instanceof CloudMatchInvalidCredentialException) {
-            msg = "The API Key and APP Id that you are using seem to be incorrect."
-                    + " Are you running the latest version of CloudMatch Demo?";
+            msg = "The API Key and APP Id that you are using seem to be incorrect. Are you running the latest version of CloudMatch Demo?";
         } else if (error instanceof CloudMatchConnectionException) {
             msg = error.getMessage();
         }
         Toast.makeText(mActivity, msg, Toast.LENGTH_LONG).show();
     }
 
-    // This method simply notifies the listener if the match was successful.
+    /*
+     * When a match between two devices is successfully established, this code will understand the respective
+     * positions and notify it to the main activity through the PinchOnMatchedInterface interface.
+     */
     @Override
     public void onMatchResponse(final MatchResponse response) {
         Log.d(TAG, "onMatchResponse: " + response);
         switch (response.mOutcome) {
             case ok:
                 final int groupSize = response.mGroupSize;
-                final int myIdInGroup = response.mMyIdInGroup;
-                final String groupId = response.mGroupId;
-                mMatchedListener.onMatched(groupId, groupSize, myIdInGroup);
+
+                // it's pinch. I know only two devices are involved.
+                final PositionScheme scheme = response.mPositionScheme;
+                if (scheme.mDevices.size() != 2) {
+                    // error, there should only be two devices!
+                    final String txt = "Error: matched in a group with more than 2 devices.";
+                    Toast.makeText(mActivity, txt, Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // for this demo, devices are only paired horizontally
+
+                int otherDeviceId = -1;
+                for (final Integer i : response.mOthersInGroup) {
+                    if (i != response.mMyIdInGroup) {
+                        otherDeviceId = i;
+                        break;
+                    }
+                }
+                final DeviceInScheme myself = scheme.getDevicePerId(response.mMyIdInGroup);
+                final DeviceInScheme other = scheme.getDevicePerId(otherDeviceId);
+
+                if (myself != null && other != null) {
+                    final boolean xGreater = myself.mPosition.x > other.mPosition.x;
+                    final PAVScreenPositions position = xGreater ? PAVScreenPositions.right
+                            : PAVScreenPositions.left;
+                    mMatchedListener.onMatched(response.mGroupId, groupSize, position);
+                }
                 break;
             case fail:
                 // is there a reason?
@@ -106,6 +132,9 @@ public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
         }
     }
 
+    /*
+     * We don't expect anything else in this app, so the following methods won't do anything.
+     */
     @Override
     public void onLeaveGroupResponse(final LeaveGroupResponse response) {
         Log.d(TAG, "onLeaveGroupResponse: " + response);
@@ -118,32 +147,36 @@ public class SwipeAndColorDemoServerEvent implements OnCloudMatchEvent {
 
     @Override
     public void onDeliveryProgress(final String tag, final String deliveryId, final int progress) {
-        // do nothing
+        Log.d(TAG, "onDeliveryProgress: " + progress);
     }
 
     @Override
     public void onMatcheeDeliveryProgress(final String tag, final int progress) {
-        // do nothing
+        Log.d(TAG, "onMatcheeDeliveryProgress: " + progress);
     }
 
-    // This callback will notify the listener if a rotation message has been received.
     @Override
     public void onMatcheeDelivery(final MatcheeDelivery delivery) {
+        Log.d(TAG, "onMatcheeDelivery");
+
         try {
             final JSONObject json = new JSONObject(delivery.mPayload);
-            if (json.has(SwipeAndColorDemoDeliveryInterface.ROTATION_MESSAGE)) {
-                Log.d(TAG, "matchee delivery: rotation");
-                mRotationListener.onRotateMessage();
+            if (json.has(PAVOnMatchedInterface.IMAGE_HEIGHT)) {
+                final int imageHeight = json.getInt(PAVOnMatchedInterface.IMAGE_HEIGHT);
+                Log.d(TAG, "matchee delivery: image height, " + imageHeight);
+                mMatchedListener.onOtherMeasurements(imageHeight);
+            } else {
+                Log.d(TAG, "matchee delivery, not sure what it was: " + delivery);
             }
         } catch (final JSONException e) {
-            Log.d(TAG, "JSONException! " + e);
+            Log.d(TAG, "JSONException caught: " + e);
+            // TODO: show toast?
         }
     }
 
     @Override
     public void onMatcheeLeft(final MatcheeLeftMessage message) {
         Log.d(TAG, "onMatcheeLeft: " + message);
-        mMatchedListener.onMatcheeLeft();
     }
 
 }

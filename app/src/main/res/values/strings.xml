@@ -21,8 +21,6 @@
     <string name="title_activity_pinch_demo">PinchDemoActivity</string>
     <string name="title_activity_swipe_and_color_demo">SwipeAndColorDemoActivity</string>
     <string name="title_activity_pinch_and_drag_demo">PinchAndDragDemoActivity</string>
-    <string name="circle">circle</string>
-    <string name="rect">rect</string>
     <string name="about">About</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>

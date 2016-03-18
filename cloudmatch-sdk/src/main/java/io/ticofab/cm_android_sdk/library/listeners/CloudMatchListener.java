@@ -20,7 +20,7 @@ import android.app.Activity;
 
 import com.codebutler.android_websockets.WebSocketClient;
 
-import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.interfaces.OnServerMessage;
 
 /**
@@ -28,15 +28,15 @@ import io.ticofab.cm_android_sdk.library.interfaces.OnServerMessage;
  */
 public class CloudMatchListener implements WebSocketClient.Listener {
 
-    public CloudMatchListener(final Activity activity, final OnCloudMatchEvent clientListener,
+    public CloudMatchListener(final Activity activity, final CloudMatchEventListener clientListener,
                               final OnServerMessage messageHandler) {
         mServerMessageHandler = messageHandler;
-        mOnCloudMatchEvent = clientListener;
+        mCloudMatchEventListener = clientListener;
         mActivity = activity;
     }
 
     private final OnServerMessage mServerMessageHandler;
-    private final OnCloudMatchEvent mOnCloudMatchEvent;
+    private final CloudMatchEventListener mCloudMatchEventListener;
     private final Activity mActivity;
 
     @Override
@@ -55,7 +55,7 @@ public class CloudMatchListener implements WebSocketClient.Listener {
 
             @Override
             public void run() {
-                mOnCloudMatchEvent.onConnectionError(error);
+                mCloudMatchEventListener.onConnectionError(error);
             }
         });
     }
@@ -66,7 +66,7 @@ public class CloudMatchListener implements WebSocketClient.Listener {
 
             @Override
             public void run() {
-                mOnCloudMatchEvent.onConnectionClosed();
+                mCloudMatchEventListener.onConnectionClosed();
             }
         });
     }
@@ -77,7 +77,7 @@ public class CloudMatchListener implements WebSocketClient.Listener {
 
             @Override
             public void run() {
-                mOnCloudMatchEvent.onConnectionOpen();
+                mCloudMatchEventListener.onConnectionOpen();
             }
         });
     }

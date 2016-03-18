@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.pinchanddrag;
+package io.cloudmatch.demo.pinchandview;
 
 /*
- * Interface to notify the activity of an established match.
+ * Definitions of positions where a device can find itself in this app. 
  */
-public interface PinchAndDragMatchedInterface {
-    void onMatched(String groupId);
-
-    void onMatcheeLeft();
+public enum PAVScreenPositions {
+    unknown, left, right
 }

@@ -13,13 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout
     android:id="@+id/container_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    tools:context=".PinchAndViewDemoActivity" >
+    tools:context=".PinchAndViewDemoActivity">
 
     <ImageView
         android:id="@+id/pinchandview_pinch_instruction_iv"
@@ -27,25 +28,25 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_margin="40dp"
-        android:src="@drawable/pinch_icon" />
+        android:src="@drawable/pinch_icon"/>
 
     <ImageView
         android:id="@+id/image_position"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_horizontal_margin"
         android:text="@string/pinchandviewdescription"
-        android:textSize="18sp" />
+        android:textSize="18sp"/>
 
     <io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal
         android:id="@+id/pinch_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>
