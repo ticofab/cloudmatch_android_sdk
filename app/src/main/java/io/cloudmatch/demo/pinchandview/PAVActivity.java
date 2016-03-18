@@ -51,6 +51,7 @@ import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
+import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchViewInterfaceNotSetException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
@@ -230,7 +231,12 @@ public class PAVActivity extends FragmentActivity implements
      */
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        mPinchView.onTouchEvent(event);
+        // this is an example of how an exception can be thrown
+        try {
+            mPinchView.onTouchEvent(event);
+        } catch (CloudMatchViewInterfaceNotSetException e) {
+            Log.d(TAG, "It seems that the cloud match interface was not set.");
+        }
         return true;
     }
 
