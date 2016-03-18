@@ -25,4 +25,8 @@ public class CloudMatchNotInitializedException extends RuntimeException {
     public CloudMatchNotInitializedException() {
         super("CloudMatch not initialized.");
     }
+
+    public CloudMatchNotInitializedException(String message) {
+        super(message);
+    }
 }

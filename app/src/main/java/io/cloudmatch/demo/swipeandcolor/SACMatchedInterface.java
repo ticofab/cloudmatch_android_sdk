@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.pinchandview;
+package io.cloudmatch.demo.swipeandcolor;
 
 /*
- * This interface is used to notify the activity that a match has been successfully setup.
+ * Interface to notify the listener that we have been matched in a group.
  */
-public interface PinchAndViewOnMatchedInterface {
-    String IMAGE_HEIGHT = "imgHeight";
+public interface SACMatchedInterface {
+    void onMatched(String groupId, int groupSize, int myIdInGroup);
 
-    void onMatched(String groupId, int groupSize, PinchAndViewDemoScreenPositions position);
-
-    void onOtherMeasurements(int othersImageHeight);
+    void onMatcheeLeft();
 }

@@ -17,21 +17,10 @@
 package io.cloudmatch.demo.pinchanddrag;
 
 /*
- * Interface for internal communication about the payload exchanges.
+ * Interface to notify the activity of an established match.
  */
-public interface PinchAndDragDeliveryInterface {
+public interface PADMatchedInterface {
+    void onMatched(String groupId);
 
-    String COIN_TOSS = "cointoss";
-    String SHAPE_DRAG = "shapedrag";
-    String SHAPE_ACQUISITION_ACK = "shapeack";
-    String SHAPE_DRAG_STOPPED = "shapedragstop";
-
-    void onCoinToss(Double value);
-
-    void onShapeDragInitiatedOnOtherSide(String shape);
-
-    void onShapeDragStoppedOnOtherSide();
-
-    void onShapeReceivedOnOtherSide(String shape);
-
+    void onMatcheeLeft();
 }

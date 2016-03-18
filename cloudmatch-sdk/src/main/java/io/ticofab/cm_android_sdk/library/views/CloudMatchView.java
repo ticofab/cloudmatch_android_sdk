@@ -4,30 +4,33 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.ticofab.cm_android_sdk.library;
+
+package io.ticofab.cm_android_sdk.library.views;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.util.AttributeSet;
+import android.view.View;
 
 import com.codebutler.android_websockets.WebSocketClient;
 
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 
+import io.ticofab.cm_android_sdk.library.consts.Criteria;
 import io.ticofab.cm_android_sdk.library.consts.ServerConsts;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
@@ -37,55 +40,78 @@ import io.ticofab.cm_android_sdk.library.helpers.Connector;
 import io.ticofab.cm_android_sdk.library.helpers.Matcher;
 import io.ticofab.cm_android_sdk.library.helpers.StringHelper;
 import io.ticofab.cm_android_sdk.library.helpers.UniqueIDHelper;
-import io.ticofab.cm_android_sdk.library.interfaces.OnCloudMatchEvent;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
+import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.listeners.CloudMatchListener;
-import io.ticofab.cm_android_sdk.library.location.LocationController;
 import io.ticofab.cm_android_sdk.library.models.inputs.DeliveryInput;
 
-public class CloudMatch {
+/**
+ * Abstract custom view providing the basic functionality of GestureMatch views.
+ */
+public abstract class CloudMatchView extends View {
+
     // the WebSocket client object, used in all network operations
-    private static WebSocketClient mWSClient;
+    WebSocketClient mWSClient;
 
     // we need a reference to an activity for various things
-    private static Activity mActivity;
+    Activity mActivity;
 
     // the client-provided implementation of OnCloudMatchEvent
-    private static OnCloudMatchEvent mListener;
+    CloudMatchEventListener mListener;
+
+    // helper to match devices
+    Matcher mMatcher;
+
+    // the interface for the client to control his view
+    CloudMatchViewInterface mClientInterface;
+
+    // pinch or swipe?
+    Criteria mCriteria;
+
+    public CloudMatchView(final Context context) {
+        super(context);
+    }
+
+    public CloudMatchView(final Context context, final AttributeSet attrs) {
+        super(context, attrs);
+    }
 
     /**
      * Initializes the CloudMatch. Always call it at the beginning of your application.
      *
-     * @param activity       Provides the context where the application runs.
-     * @param clientListener Implementation of the OnCloudMatchEvent interface. Will be used to notify any network
-     *                       communication.
+     * @param activity         Provides the context where the application runs.
+     * @param clientListener   Implementation of the OnCloudMatchEvent interface. Will be used to notify any network communication.
+     * @param locationProvider Implementation of LocationProvider, needs to serve coordinates when needed
+     * @param clientInterface  Implementation of the CloudMatchViewInterface
+     * @throws PackageManager.NameNotFoundException
      */
-    public static void init(final Activity activity, final OnCloudMatchEvent clientListener) throws PackageManager.NameNotFoundException {
+    public void initCloudMatch(final Activity activity,
+                               final CloudMatchEventListener clientListener,
+                               final LocationProvider locationProvider,
+                               final CloudMatchViewInterface clientInterface)
+            throws PackageManager.NameNotFoundException {
         mActivity = activity;
         mListener = clientListener;
+        mClientInterface = clientInterface;
 
-        LocationController.init(mActivity);
-        Connector.init(mActivity, StringHelper.getApiKey(activity), StringHelper.getAppId(activity));
-        Matcher.init(mActivity);
-    }
+        if (mActivity == null) {
+            throw new CloudMatchNotInitializedException("Activity cannot be null.");
+        }
 
-    /**
-     * Call this in the onResume() method of your application.
-     *
-     * @throws CloudMatchNotInitializedException
-     */
-    public static void onResume() throws CloudMatchNotInitializedException {
-        checkInitializationOrThrow();
-        LocationController.connect();
-    }
+        // initialize socket
+        final ServerMessagesHandler myMessagesHandler = new ServerMessagesHandler(mActivity, mListener);
+        final CloudMatchListener myListener = new CloudMatchListener(mActivity, mListener, myMessagesHandler);
 
-    /**
-     * Call this in the onPause() method of your application.
-     *
-     * @throws CloudMatchNotInitializedException
-     */
-    public static void onPause() throws CloudMatchNotInitializedException {
-        checkInitializationOrThrow();
-        LocationController.disconnect();
+        Connector connector = new Connector(mActivity, StringHelper.getApiKey(mActivity), StringHelper.getAppId(mActivity));
+        final URI uri;
+        try {
+            uri = connector.getConnectionUri();
+            mWSClient = new WebSocketClient(uri, myListener, null);
+            mMatcher = new Matcher(mWSClient, locationProvider);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -94,28 +120,11 @@ public class CloudMatch {
      * @throws LocationServicesUnavailableException
      * @throws CloudMatchNotInitializedException
      */
-    public static void connect() throws LocationServicesUnavailableException, CloudMatchNotInitializedException {
-
-        checkInitializationOrThrow();
-        LocationController.checkAvailabilityOrThrow(mActivity);
-
-        if (mWSClient != null && mWSClient.isConnected()) {
+    public void connect() {
+        if (mWSClient.isConnected()) {
             mWSClient.disconnect();
         }
-
-        final ServerMessagesHandler myMessagesHandler = new ServerMessagesHandler(mActivity, mListener);
-        final CloudMatchListener myListener = new CloudMatchListener(mActivity, mListener, myMessagesHandler);
-
-        try {
-            // initialize socket
-            final List<BasicNameValuePair> extraHeaders = null;
-            final URI uri = Connector.getConnectionUri();
-            mWSClient = new WebSocketClient(uri, myListener, extraHeaders);
-            mWSClient.connect();
-            Matcher.setWebsocketClient(mWSClient);
-        } catch (final URISyntaxException e) {
-            // TODO: handle exception
-        }
+        mWSClient.connect();
     }
 
     /**
@@ -126,9 +135,9 @@ public class CloudMatch {
      * @param tag     Optional tag for this delivery. Can be null.
      * @throws CloudMatchNotConnectedException
      */
-    public static void deliverPayloadToGroup(final String payload,
-                                             final String groupId,
-                                             final String tag)
+    public void deliverPayloadToGroup(final String payload,
+                                      final String groupId,
+                                      final String tag)
             throws CloudMatchNotConnectedException {
         deliverPayload(null, payload, groupId, tag);
     }
@@ -142,11 +151,13 @@ public class CloudMatch {
      * @throws CloudMatchNotConnectedException
      */
     // TODO: this should forward to a "deliverer" or something
-    public static void deliverPayload(final ArrayList<Integer> recipients,
-                                      final String payload,
-                                      final String groupId,
-                                      final String tag) throws CloudMatchNotConnectedException {
-        checkWebsocketClientOrThrow();
+    public void deliverPayload(final ArrayList<Integer> recipients,
+                               final String payload,
+                               final String groupId,
+                               final String tag) throws CloudMatchNotConnectedException {
+        if (!mWSClient.isConnected()) {
+            throw new CloudMatchNotConnectedException();
+        }
 
         final ArrayList<String> chunks = StringHelper.splitEqually(payload, ServerConsts.MAX_DELIVERY_CHUNK_SIZE);
 
@@ -167,7 +178,7 @@ public class CloudMatch {
             try {
                 final String jsonToSend = deliveryInput.toJsonStr();
                 mWSClient.send(jsonToSend);
-                mActivity.runOnUiThread(new DeliveryProgressRunnable(tag, deliveryId, totalChunks, i));
+                mActivity.runOnUiThread(new DeliveryProgressRunnable(tag, deliveryId, totalChunks, i, mListener));
             } catch (final JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -176,16 +187,22 @@ public class CloudMatch {
     }
 
     public static class DeliveryProgressRunnable implements Runnable {
-        int mCurrentChunk;
         String mTag;
-        String mDeliveryId;
         int mTotalChunks;
+        int mCurrentChunk;
+        String mDeliveryId;
+        CloudMatchEventListener mListener;
 
-        public DeliveryProgressRunnable(final String tag, final String deliveryId, final int totalChunks, final int i) {
-            mCurrentChunk = i;
+        public DeliveryProgressRunnable(final String tag,
+                                        final String deliveryId,
+                                        final int totalChunks,
+                                        final int currentChunk,
+                                        final CloudMatchEventListener listener) {
             mTag = tag;
+            mListener = listener;
             mDeliveryId = deliveryId;
             mTotalChunks = totalChunks;
+            mCurrentChunk = currentChunk;
         }
 
         @Override
@@ -197,32 +214,10 @@ public class CloudMatch {
     /**
      * Closes the connection with the server, disconnecting the WebSocketClient object.
      */
-    public static void closeConnection() {
-        LocationController.disconnect();
+    public void closeConnection() {
         if (mWSClient != null && mWSClient.isConnected()) {
             mWSClient.disconnect();
         }
     }
 
-    /**
-     * Throws an exception if the WebSocketClient object is null or not connected to a WebSocket endpoint.
-     *
-     * @throws CloudMatchNotConnectedException
-     */
-    private static void checkWebsocketClientOrThrow() throws CloudMatchNotConnectedException {
-        if (mWSClient == null || !mWSClient.isConnected()) {
-            throw new CloudMatchNotConnectedException();
-        }
-    }
-
-    /**
-     * Check if a context (Activity) has been set on the CloudMatch, and throws an exception otherwise.
-     *
-     * @throws CloudMatchNotInitializedException
-     */
-    private static void checkInitializationOrThrow() throws CloudMatchNotInitializedException {
-        if (mActivity == null) {
-            throw new CloudMatchNotInitializedException();
-        }
-    }
 }

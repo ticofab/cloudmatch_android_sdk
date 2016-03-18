@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package io.cloudmatch.demo.swipeandcolor;
+package io.cloudmatch.demo.pinchanddrag;
 
 /*
- * Interface to notify the listener that we have been matched in a group.
+ * Interface for internal communication about the payload exchanges.
  */
-public interface SwipeAndColorDemoMatchedInterface {
-    void onMatched(String groupId, int groupSize, int myIdInGroup);
+public interface PADDeliveryInterface {
 
-    void onMatcheeLeft();
+    String COIN_TOSS = "cointoss";
+    String SHAPE_DRAG = "shapedrag";
+    String SHAPE_ACQUISITION_ACK = "shapeack";
+    String SHAPE_DRAG_STOPPED = "shapedragstop";
+
+    void onCoinToss(Double value);
+
+    void onShapeDragInitiatedOnOtherSide(String shape);
+
+    void onShapeDragStoppedOnOtherSide();
+
+    void onShapeReceivedOnOtherSide(String shape);
+
 }

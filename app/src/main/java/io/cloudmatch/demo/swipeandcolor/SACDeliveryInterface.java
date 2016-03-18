@@ -19,7 +19,7 @@ package io.cloudmatch.demo.swipeandcolor;
 /*
  * Interface used to notify a listener that a rotation message has been received
  */
-public interface SwipeAndColorDemoDeliveryInterface {
+public interface SACDeliveryInterface {
     String ROTATION_MESSAGE = "rotation";
 
     void onRotateMessage();

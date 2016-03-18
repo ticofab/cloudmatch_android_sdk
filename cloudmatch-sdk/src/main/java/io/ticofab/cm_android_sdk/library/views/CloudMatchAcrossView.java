@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ticofab.cm_android_sdk.library.views.base;
+package io.ticofab.cm_android_sdk.library.views;
 
 import android.content.Context;
 import android.graphics.PointF;
@@ -26,7 +26,6 @@ import io.ticofab.cm_android_sdk.library.consts.Areas;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchViewInterfaceNotSetException;
-import io.ticofab.cm_android_sdk.library.helpers.Matcher;
 import io.ticofab.cm_android_sdk.library.helpers.MovementHelper;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.models.inputs.GroupComMatchInput;
@@ -88,7 +87,8 @@ public abstract class CloudMatchAcrossView extends CloudMatchView {
         return false;
     }
 
-    private void sendMatchRequest(final Areas areaStart, final Areas areaEnd,
+    private void sendMatchRequest(final Areas areaStart,
+                                  final Areas areaEnd,
                                   final GesturePurposeInfo gesturePurposeInfo) {
 
         final String equalityParam = mClientInterface.getEqualityParam();
@@ -102,7 +102,7 @@ public abstract class CloudMatchAcrossView extends CloudMatchView {
                     matchCreateInput.mEqualityParam = equalityParam;
                 }
                 try {
-                    Matcher.sendGroupCreateMatchRequest(matchCreateInput);
+                    mMatcher.sendGroupCreateMatchRequest(matchCreateInput);
                 } catch (final RuntimeException e) {
                     mClientInterface.onError(e);
                 }
@@ -118,7 +118,7 @@ public abstract class CloudMatchAcrossView extends CloudMatchView {
                     matchComInput.mEqualityParam = equalityParam;
                 }
                 try {
-                    Matcher.sendGroupComMatchRequest(matchComInput);
+                    mMatcher.sendGroupComMatchRequest(matchComInput);
                 } catch (final RuntimeException e) {
                     mClientInterface.onError(e);
                 }

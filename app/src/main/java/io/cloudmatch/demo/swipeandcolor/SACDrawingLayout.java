@@ -16,7 +16,8 @@
 
 package io.cloudmatch.demo.swipeandcolor;
 
-import android.content.Context;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,84 +25,58 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
+import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
+import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchSwipeViewAllSides;
-import io.cloudmatch.demo.R;
 
 /*
  * This layout will take care of managing the swipe drawing on screen and will listen to the
  * callbacks from the CloudMatchView (in this case a CloudMatchSwipeViewAllSides).
  */
-public class SwipeAndColorDemoDrawingLayout extends RelativeLayout {
+public class SACDrawingLayout extends RelativeLayout {
 
-    private CloudMatchSwipeViewAllSides mSwipeAllSidesView;
+    // the main cloudmatch view
+    CloudMatchSwipeViewAllSides mSwipeAllSidesView;
 
     // drawing stuff
-    private Bitmap mBitmap;
-    private Canvas mCanvas;
-    private Path mPath;
-    private Paint mBitmapPaint;
-    private Paint mPaint;
-    private float mX, mY;
-    private static final float TOUCH_TOLERANCE = 4;
+    Path mPath;
+    Paint mPaint;
+    float mX, mY;
+    Canvas mCanvas;
+    Bitmap mBitmap;
+    Paint mBitmapPaint;
+    static final float TOUCH_TOLERANCE = 4;
 
-    public SwipeAndColorDemoDrawingLayout(final Context context) {
-        super(context);
-        initStuff(context);
+    public SACDrawingLayout(final Activity activity,
+                            final CloudMatchEventListener eventListener,
+                            final LocationProvider locationProvider) {
+        super(activity);
+        initStuff(activity, eventListener, locationProvider);
     }
 
-    public SwipeAndColorDemoDrawingLayout(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        initStuff(context);
-    }
-
-    private void initStuff(final Context context) {
-        final LayoutInflater inflater = LayoutInflater.from(context);
+    private void initStuff(final Activity activity,
+                           final CloudMatchEventListener eventListener,
+                           final LocationProvider locationProvider) {
+        final LayoutInflater inflater = LayoutInflater.from(activity);
         inflater.inflate(R.layout.swipe_and_color_demo_drawing_layout, this);
 
         mSwipeAllSidesView = (CloudMatchSwipeViewAllSides) findViewById(R.id.swipe_and_color_swipe_view);
-
-        // the interface that is set here is just a stub - it doesn't do anything special.
-        mSwipeAllSidesView.setCloudMatchInterface(new CloudMatchViewInterface() {
-
-            @Override
-            public void onMovementDetection(final Movements arg0,
-                                            final MovementType arg1,
-                                            final PointF arg2,
-                                            final PointF arg3) {
-                // do nothing
-
-            }
-
-            @Override
-            public void onError(final RuntimeException arg0) {
-                // do nothing
-            }
-
-            @Override
-            public boolean isGestureValid() {
-                return true;
-            }
-
-            @Override
-            public String getEqualityParam() {
-                return null;
-            }
-
-            @Override
-            public GesturePurposeInfo getGesturePurposeInfo() {
-                return new GesturePurposeInfo(GesturePurpose.group_creation);
-            }
-        });
+        try {
+            mSwipeAllSidesView.initCloudMatch(activity, eventListener, locationProvider, cloudMatchViewInterface);
+            mSwipeAllSidesView.connect();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         // setup drawing stuff
         mPath = new Path();
@@ -188,4 +163,44 @@ public class SwipeAndColorDemoDrawingLayout extends RelativeLayout {
         mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         invalidate();
     }
+
+    public void deliverPayload(String payload, String groupId) {
+        mSwipeAllSidesView.deliverPayloadToGroup(payload, groupId, null);
+    }
+
+    public void onDestroy() {
+        mSwipeAllSidesView.closeConnection();
+    }
+
+    private CloudMatchViewInterface cloudMatchViewInterface = new CloudMatchViewInterface() {
+
+        @Override
+        public void onMovementDetection(final Movements arg0,
+                                        final MovementType arg1,
+                                        final PointF arg2,
+                                        final PointF arg3) {
+            // do nothing
+
+        }
+
+        @Override
+        public void onError(final RuntimeException arg0) {
+            // do nothing
+        }
+
+        @Override
+        public boolean isGestureValid() {
+            return true;
+        }
+
+        @Override
+        public String getEqualityParam() {
+            return null;
+        }
+
+        @Override
+        public GesturePurposeInfo getGesturePurposeInfo() {
+            return new GesturePurposeInfo(GesturePurpose.group_creation);
+        }
+    };
 }
