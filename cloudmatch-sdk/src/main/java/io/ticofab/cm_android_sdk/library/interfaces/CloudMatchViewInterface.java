@@ -38,7 +38,7 @@ public abstract class CloudMatchViewInterface {
 
     public GesturePurposeInfo getGesturePurposeInfo() {
         // default implementation is for group creation
-        return new GesturePurposeInfo(GesturePurpose.group_creation);
+        return new GesturePurposeInfo.Builder().build();
     }
 
     public String getEqualityParam() {
