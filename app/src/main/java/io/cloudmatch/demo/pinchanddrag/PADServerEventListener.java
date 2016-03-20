@@ -23,22 +23,20 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchConnectionException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchInvalidCredentialException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeDelivery;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeLeftMessage;
-import io.ticofab.cm_android_sdk.library.models.responses.DeliveryResponse;
-import io.ticofab.cm_android_sdk.library.models.responses.LeaveGroupResponse;
 import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
-import io.cloudmatch.demo.R;
 
 /*
  * Implementation of the OnCloudMatchEvent interface from CloudMatch. Will receive callbacks upon server events.
  * This implementation also gets the context and two interfaces in the constructor.
  * A lot of these methods are not used in this application and are therefore left empty. 
  */
-public class PADServerEventListener implements CloudMatchEventListener {
+public class PADServerEventListener extends CloudMatchEventListener {
     private static final String TAG = PADServerEventListener.class.getSimpleName();
 
     private final Activity mActivity;
@@ -103,28 +101,8 @@ public class PADServerEventListener implements CloudMatchEventListener {
         }
     }
 
-    @Override
-    public void onLeaveGroupResponse(final LeaveGroupResponse response) {
-        Log.d(TAG, "onLeaveGroupResponse: " + response);
-    }
-
-    @Override
-    public void onDeliveryResponse(final DeliveryResponse response) {
-        Log.d(TAG, "onDeliveryResponse: " + response);
-    }
-
-    @Override
-    public void onDeliveryProgress(final String tag, final String deliveryId, final int progress) {
-        // do nothing
-    }
-
-    @Override
-    public void onMatcheeDeliveryProgress(final String tag, final int progress) {
-        // do nothing
-    }
-
-    // When a new delivery arrives, this method parses it and notifies the listener through the proper interface
-    // call.
+    // When a new delivery arrives, this method parses it and notifies
+    // the listener through the proper interface call.
     @Override
     public void onMatcheeDelivery(final MatcheeDelivery delivery) {
         try {

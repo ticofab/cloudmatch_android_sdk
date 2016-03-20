@@ -23,21 +23,20 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchConnectionException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchInvalidCredentialException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeDelivery;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeLeftMessage;
-import io.ticofab.cm_android_sdk.library.models.responses.DeliveryResponse;
 import io.ticofab.cm_android_sdk.library.models.responses.LeaveGroupResponse;
 import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
-import io.cloudmatch.demo.R;
 
 /*
  * Implementation of the OnCloudMatchEvent interface from the CloudMatch. This class also takes two listeners,
  * see constructor. As usual, many callbacks are not implemented as they're not required in this application.
  */
-public class SACServerEventListener implements CloudMatchEventListener {
+public class SACServerEventListener extends CloudMatchEventListener {
     private static final String TAG = SACServerEventListener.class.getSimpleName();
 
     private final Activity mActivity;
@@ -104,26 +103,6 @@ public class SACServerEventListener implements CloudMatchEventListener {
             default:
                 break;
         }
-    }
-
-    @Override
-    public void onLeaveGroupResponse(final LeaveGroupResponse response) {
-        Log.d(TAG, "onLeaveGroupResponse: " + response);
-    }
-
-    @Override
-    public void onDeliveryResponse(final DeliveryResponse response) {
-        Log.d(TAG, "onDeliveryResponse: " + response);
-    }
-
-    @Override
-    public void onDeliveryProgress(final String tag, final String deliveryId, final int progress) {
-        // do nothing
-    }
-
-    @Override
-    public void onMatcheeDeliveryProgress(final String tag, final int progress) {
-        // do nothing
     }
 
     // This callback will notify the listener if a rotation message has been received.

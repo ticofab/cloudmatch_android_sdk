@@ -23,6 +23,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchConnectionException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchInvalidCredentialException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
@@ -30,16 +31,13 @@ import io.ticofab.cm_android_sdk.library.models.DeviceInScheme;
 import io.ticofab.cm_android_sdk.library.models.PositionScheme;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeDelivery;
 import io.ticofab.cm_android_sdk.library.models.messages.MatcheeLeftMessage;
-import io.ticofab.cm_android_sdk.library.models.responses.DeliveryResponse;
-import io.ticofab.cm_android_sdk.library.models.responses.LeaveGroupResponse;
 import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
-import io.cloudmatch.demo.R;
 
 /*
  * Implementation of the OnCloudMatchEvent interface in the CloudMatchSDK. It adds some logic for "internal"
  * communication within this demo.
  */
-public class PAVServerEventListener implements CloudMatchEventListener {
+public class PAVServerEventListener extends CloudMatchEventListener {
     private static final String TAG = PAVServerEventListener.class.getSimpleName();
 
     private final Activity mActivity;
@@ -130,29 +128,6 @@ public class PAVServerEventListener implements CloudMatchEventListener {
             default:
                 break;
         }
-    }
-
-    /*
-     * We don't expect anything else in this app, so the following methods won't do anything.
-     */
-    @Override
-    public void onLeaveGroupResponse(final LeaveGroupResponse response) {
-        Log.d(TAG, "onLeaveGroupResponse: " + response);
-    }
-
-    @Override
-    public void onDeliveryResponse(final DeliveryResponse response) {
-        Log.d(TAG, "onDeliveryResponse: " + response);
-    }
-
-    @Override
-    public void onDeliveryProgress(final String tag, final String deliveryId, final int progress) {
-        Log.d(TAG, "onDeliveryProgress: " + progress);
-    }
-
-    @Override
-    public void onMatcheeDeliveryProgress(final String tag, final int progress) {
-        Log.d(TAG, "onMatcheeDeliveryProgress: " + progress);
     }
 
     @Override

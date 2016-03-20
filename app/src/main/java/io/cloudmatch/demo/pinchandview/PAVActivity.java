@@ -48,13 +48,11 @@ import com.google.android.gms.location.LocationServices;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.cloudmatch.demo.R;
-import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchViewInterfaceNotSetException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
-import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
 
 /*
@@ -315,16 +313,6 @@ public class PAVActivity extends FragmentActivity implements
         @Override
         public boolean isGestureValid() {
             return true;
-        }
-
-        @Override
-        public String getEqualityParam() {
-            return null;
-        }
-
-        @Override
-        public GesturePurposeInfo getGesturePurposeInfo() {
-            return new GesturePurposeInfo(GesturePurpose.group_creation);
         }
     };
 

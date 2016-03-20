@@ -18,6 +18,7 @@ package io.ticofab.cm_android_sdk.library.interfaces;
 
 import android.graphics.PointF;
 
+import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
@@ -25,15 +26,23 @@ import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 /**
  * Interface used in the CloudMatch custom views to communicate with the client using them.
  */
-public interface CloudMatchViewInterface {
-    void onMovementDetection(Movements movement, MovementType movementType, PointF swipeStart,
-                             PointF swipeEnd);
+public abstract class CloudMatchViewInterface {
+    abstract public void onMovementDetection(Movements movement,
+                                             MovementType movementType,
+                                             PointF swipeStart,
+                                             PointF swipeEnd);
 
-    boolean isGestureValid();
+    abstract public boolean isGestureValid();
 
-    GesturePurposeInfo getGesturePurposeInfo();
+    abstract public void onError(RuntimeException e);
 
-    String getEqualityParam();
+    public GesturePurposeInfo getGesturePurposeInfo() {
+        // default implementation is for group creation
+        return new GesturePurposeInfo(GesturePurpose.group_creation);
+    }
 
-    void onError(RuntimeException e);
+    public String getEqualityParam() {
+        // default implementation returns null
+        return null;
+    }
 }

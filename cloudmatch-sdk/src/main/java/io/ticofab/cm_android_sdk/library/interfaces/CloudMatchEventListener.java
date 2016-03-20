@@ -25,24 +25,38 @@ import io.ticofab.cm_android_sdk.library.models.responses.MatchResponse;
 /**
  * Interface used to notify the client of a server event.
  */
-public interface CloudMatchEventListener {
-    void onConnectionOpen();
+public abstract class CloudMatchEventListener {
+    abstract public void onConnectionOpen();
 
-    void onConnectionClosed();
+    abstract public void onConnectionClosed();
 
-    void onConnectionError(Exception error);
+    abstract public void onConnectionError(Exception error);
 
-    void onMatchResponse(MatchResponse response);
+    abstract public void onMatchResponse(MatchResponse response);
 
-    void onLeaveGroupResponse(LeaveGroupResponse response);
+    public void onLeaveGroupResponse(LeaveGroupResponse response) {
 
-    void onDeliveryResponse(DeliveryResponse response);
+    }
 
-    void onDeliveryProgress(String tag, String deliveryId, int progress);
+    public void onMatcheeLeft(MatcheeLeftMessage message) {
+        // default implementation does nothing
+    }
 
-    void onMatcheeDeliveryProgress(String tag, int progress);
+    public void onDeliveryResponse(DeliveryResponse response) {
+        // default implementation does nothing
+    }
 
-    void onMatcheeDelivery(MatcheeDelivery delivery);
+    public void onDeliveryProgress(String tag, String deliveryId, int progress) {
+        // default implementation does nothing
+    }
 
-    void onMatcheeLeft(MatcheeLeftMessage message);
+    public void onMatcheeDeliveryProgress(String tag, int progress) {
+        // default implementation does nothing
+    }
+
+    public void onMatcheeDelivery(MatcheeDelivery delivery) {
+        // default implementation does nothing
+    }
+
+
 }
