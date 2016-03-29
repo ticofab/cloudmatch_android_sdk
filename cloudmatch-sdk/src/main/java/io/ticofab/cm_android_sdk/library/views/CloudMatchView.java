@@ -22,7 +22,9 @@ import android.content.pm.PackageManager;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.codebutler.android_websockets.WebSocketClient;
+import com.koushikdutta.async.future.Future;
+import com.koushikdutta.async.http.AsyncHttpClient;
+import com.koushikdutta.async.http.WebSocket;
 
 import org.json.JSONException;
 
@@ -34,15 +36,14 @@ import io.ticofab.cm_android_sdk.library.consts.Criteria;
 import io.ticofab.cm_android_sdk.library.consts.ServerConsts;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
-import io.ticofab.cm_android_sdk.library.exceptions.LocationServicesUnavailableException;
 import io.ticofab.cm_android_sdk.library.handlers.ServerMessagesHandler;
 import io.ticofab.cm_android_sdk.library.helpers.Connector;
 import io.ticofab.cm_android_sdk.library.helpers.Matcher;
 import io.ticofab.cm_android_sdk.library.helpers.StringHelper;
 import io.ticofab.cm_android_sdk.library.helpers.UniqueIDHelper;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
-import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.listeners.CloudMatchListener;
 import io.ticofab.cm_android_sdk.library.models.inputs.DeliveryInput;
 
@@ -52,7 +53,7 @@ import io.ticofab.cm_android_sdk.library.models.inputs.DeliveryInput;
 public abstract class CloudMatchView extends View {
 
     // the WebSocket client object, used in all network operations
-    WebSocketClient mWSClient;
+    WebSocket mWSClient;
 
     // we need a reference to an activity for various things
     Activity mActivity;
@@ -86,10 +87,10 @@ public abstract class CloudMatchView extends View {
      * @param clientInterface  Implementation of the CloudMatchViewInterface
      * @throws PackageManager.NameNotFoundException
      */
-    public void initCloudMatch(final Activity activity,
-                               final CloudMatchEventListener clientListener,
-                               final LocationProvider locationProvider,
-                               final CloudMatchViewInterface clientInterface)
+    public void connectCloudMatch(final Activity activity,
+                                  final CloudMatchEventListener clientListener,
+                                  final LocationProvider locationProvider,
+                                  final CloudMatchViewInterface clientInterface)
             throws PackageManager.NameNotFoundException {
         mActivity = activity;
         mListener = clientListener;
@@ -101,30 +102,42 @@ public abstract class CloudMatchView extends View {
 
         // initialize socket
         final ServerMessagesHandler myMessagesHandler = new ServerMessagesHandler(mActivity, mListener);
-        final CloudMatchListener myListener = new CloudMatchListener(mActivity, mListener, myMessagesHandler);
+        final CloudMatchListener myListener = new CloudMatchListener(mActivity, myMessagesHandler, mListener);
 
         Connector connector = new Connector(mActivity, StringHelper.getApiKey(mActivity), StringHelper.getAppId(mActivity));
         final URI uri;
         try {
             uri = connector.getConnectionUri();
-            mWSClient = new WebSocketClient(uri, myListener, null);
-            mMatcher = new Matcher(mWSClient, locationProvider);
+
+            AsyncHttpClient.getDefaultInstance().websocket(
+                    uri.toString(),
+                    "my-protocol",
+                    new AsyncHttpClient.WebSocketConnectCallback() {
+                        @Override
+                        public void onCompleted(Exception ex, WebSocket webSocket) {
+                            if (ex == null) {
+                                mWSClient = webSocket;
+                                mWSClient.setClosedCallback(myListener.getClosedCallback());
+                                mWSClient.setEndCallback(myListener.getEndCallback());
+                                mWSClient.setDataCallback(myListener.getDataCallback());
+                                mWSClient.setStringCallback(myListener.getStringCallback());
+                                mWSClient.setWriteableCallback(myListener.getWritabledCallback());
+                                mActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mListener.onConnectionOpen();
+                                    }
+                                });
+                                mMatcher = new Matcher(mWSClient, locationProvider);
+                            } else {
+                                mListener.onConnectionError(ex);
+                            }
+
+                        }
+                    });
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Connects the CloudMatch. You need to call init() first.
-     *
-     * @throws LocationServicesUnavailableException
-     * @throws CloudMatchNotInitializedException
-     */
-    public void connect() {
-        if (mWSClient.isConnected()) {
-            mWSClient.disconnect();
-        }
-        mWSClient.connect();
     }
 
     /**
@@ -155,7 +168,7 @@ public abstract class CloudMatchView extends View {
                                final String payload,
                                final String groupId,
                                final String tag) throws CloudMatchNotConnectedException {
-        if (!mWSClient.isConnected()) {
+        if (mWSClient == null || !mWSClient.isOpen()) {
             throw new CloudMatchNotConnectedException();
         }
 
@@ -215,8 +228,8 @@ public abstract class CloudMatchView extends View {
      * Closes the connection with the server, disconnecting the WebSocketClient object.
      */
     public void closeConnection() {
-        if (mWSClient != null && mWSClient.isConnected()) {
-            mWSClient.disconnect();
+        if (mWSClient != null && mWSClient.isOpen()) {
+            mWSClient.close();
         }
     }
 

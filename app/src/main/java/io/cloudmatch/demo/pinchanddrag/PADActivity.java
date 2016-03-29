@@ -28,6 +28,7 @@ import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -54,6 +55,7 @@ import butterknife.ButterKnife;
 import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
+import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
@@ -220,11 +222,11 @@ public class PADActivity extends FragmentActivity implements
     }
 
     public void initCloudMatch() {
-        // initializes the CloudMatch. In this case we also immediately connect,
+        // initializes the CloudMatch. In this case we also immediately connectCloudMatch,
         // but it could be done also at a different stage.
         try {
             // TODO: implement LocationProvider
-            mPinchView.initCloudMatch(this,
+            mPinchView.connectCloudMatch(this,
                     new PADServerEventListener(this, mMatchedInterface, mDeliveryInterface),
                     new LocationProvider() {
                         @Override
@@ -236,7 +238,6 @@ public class PADActivity extends FragmentActivity implements
                         }
                     },
                     mPinchDemoSMVI);
-            mPinchView.connect();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -270,7 +271,12 @@ public class PADActivity extends FragmentActivity implements
      */
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        mPinchView.onTouchEvent(event);
+        try {
+            mPinchView.onTouchEvent(event);
+        } catch (CloudMatchNotConnectedException e) {
+            // handle exception
+        }
+
         return true;
     }
 
@@ -323,7 +329,7 @@ public class PADActivity extends FragmentActivity implements
 
         @Override
         public boolean isGestureValid() {
-            // only attempt to connect if we're not already connected
+            // only attempt to connectCloudMatch if we're not already connected
             return TextUtils.isEmpty(mGroupId);
         }
     };
@@ -332,16 +338,17 @@ public class PADActivity extends FragmentActivity implements
     private class MyCircleView extends View {
         public static final int RADIUS = 15;
 
+        final Paint mMyPaint = new Paint();
+
         public MyCircleView(final Context context) {
             super(context);
         }
 
         @Override
         protected void onDraw(final Canvas canvas) {
-            final Paint myPaint = new Paint();
-            myPaint.setColor(Color.RED);
-            myPaint.setStyle(Paint.Style.FILL);
-            canvas.drawCircle(RADIUS, RADIUS, RADIUS, myPaint);
+            mMyPaint.setColor(Color.RED);
+            mMyPaint.setStyle(Paint.Style.FILL);
+            canvas.drawCircle(RADIUS, RADIUS, RADIUS, mMyPaint);
         }
     }
 
@@ -503,7 +510,7 @@ public class PADActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
         if (mResolvingError) {
             // Already attempting to resolve an error.
             return;
@@ -546,6 +553,7 @@ public class PADActivity extends FragmentActivity implements
         public ErrorDialogFragment() {
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Get the error code and retrieve the appropriate dialog

@@ -29,6 +29,7 @@ import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -50,6 +51,7 @@ import butterknife.ButterKnife;
 import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
+import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchViewInterfaceNotSetException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
@@ -197,7 +199,7 @@ public class PAVActivity extends FragmentActivity implements
         // at a different stage.
         try {
             // get the CloudMatchView object (defined in the xml layout) and set its interface.
-            mPinchView.initCloudMatch(this,
+            mPinchView.connectCloudMatch(this,
                     new PAVServerEventListener(this, mMatchedInterface),
                     new LocationProvider() {
 
@@ -210,11 +212,9 @@ public class PAVActivity extends FragmentActivity implements
                         }
                     },
                     mPinchDemoSMVI);
-            mPinchView.connect();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        mPinchView.connect();
     }
 
     @Override
@@ -234,6 +234,8 @@ public class PAVActivity extends FragmentActivity implements
             mPinchView.onTouchEvent(event);
         } catch (CloudMatchViewInterfaceNotSetException e) {
             Log.d(TAG, "It seems that the cloud match interface was not set.");
+        } catch (CloudMatchNotConnectedException e) {
+            Log.d(TAG, "CloudMatch wasn't connected.");
         }
         return true;
     }
@@ -322,16 +324,17 @@ public class PAVActivity extends FragmentActivity implements
     private class MyRectView extends View {
         public static final int SIDE_LENGHT = 20;
 
+        final Paint mMyPaint = new Paint();
+
         public MyRectView(final Context context) {
             super(context);
         }
 
         @Override
         protected void onDraw(final Canvas canvas) {
-            final Paint myPaint = new Paint();
-            myPaint.setColor(Color.RED);
-            myPaint.setStyle(Paint.Style.FILL);
-            canvas.drawRect(0, 0, SIDE_LENGHT, SIDE_LENGHT, myPaint);
+            mMyPaint.setColor(Color.RED);
+            mMyPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect(0, 0, SIDE_LENGHT, SIDE_LENGHT, mMyPaint);
         }
     }
 
@@ -359,7 +362,7 @@ public class PAVActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
         if (mResolvingError) {
             // Already attempting to resolve an error.
             return;
@@ -402,6 +405,7 @@ public class PAVActivity extends FragmentActivity implements
         public ErrorDialogFragment() {
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Get the error code and retrieve the appropriate dialog

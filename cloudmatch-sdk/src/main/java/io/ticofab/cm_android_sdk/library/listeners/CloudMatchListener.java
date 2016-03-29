@@ -18,7 +18,12 @@ package io.ticofab.cm_android_sdk.library.listeners;
 
 import android.app.Activity;
 
-import com.codebutler.android_websockets.WebSocketClient;
+import com.koushikdutta.async.ByteBufferList;
+import com.koushikdutta.async.DataEmitter;
+import com.koushikdutta.async.callback.CompletedCallback;
+import com.koushikdutta.async.callback.DataCallback;
+import com.koushikdutta.async.callback.WritableCallback;
+import com.koushikdutta.async.http.WebSocket;
 
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.interfaces.OnServerMessage;
@@ -26,59 +31,85 @@ import io.ticofab.cm_android_sdk.library.interfaces.OnServerMessage;
 /**
  * SDK's implementation of the WebSocket Listener interface to receive messages from the backend.
  */
-public class CloudMatchListener implements WebSocketClient.Listener {
+public class CloudMatchListener {
 
-    public CloudMatchListener(final Activity activity, final CloudMatchEventListener clientListener,
-                              final OnServerMessage messageHandler) {
+    public CloudMatchListener(final Activity activity,
+                              final OnServerMessage messageHandler,
+                              final CloudMatchEventListener clientListener) {
+        mActivity = activity;
         mServerMessageHandler = messageHandler;
         mCloudMatchEventListener = clientListener;
-        mActivity = activity;
     }
 
-    private final OnServerMessage mServerMessageHandler;
-    private final CloudMatchEventListener mCloudMatchEventListener;
-    private final Activity mActivity;
+    final Activity mActivity;
+    final OnServerMessage mServerMessageHandler;
+    final CloudMatchEventListener mCloudMatchEventListener;
 
-    @Override
-    public void onMessage(final byte[] data) {
-        onMessage(new String(data));
+    public CompletedCallback getClosedCallback() {
+        return mClosedCallback;
     }
 
-    @Override
-    public void onMessage(final String message) {
-        mServerMessageHandler.onServerMessage(message);
+    public CompletedCallback getEndCallback() {
+        return mEndCallback;
     }
 
-    @Override
-    public void onError(final Exception error) {
-        mActivity.runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                mCloudMatchEventListener.onConnectionError(error);
-            }
-        });
+    public WebSocket.StringCallback getStringCallback() {
+        return mStringCallback;
     }
 
-    @Override
-    public void onDisconnect(final int code, final String reason) {
-        mActivity.runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                mCloudMatchEventListener.onConnectionClosed();
-            }
-        });
+    public DataCallback getDataCallback() {
+        return mDataCallback;
     }
 
-    @Override
-    public void onConnect() {
-        mActivity.runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                mCloudMatchEventListener.onConnectionOpen();
-            }
-        });
+    public WritableCallback getWritabledCallback() {
+        return mWritableCallback;
     }
+
+    final CompletedCallback mClosedCallback = new CompletedCallback() {
+        @Override
+        public void onCompleted(final Exception ex) {
+            mActivity.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    mCloudMatchEventListener.onConnectionClosed();
+                }
+            });
+        }
+    };
+
+    final CompletedCallback mEndCallback = new CompletedCallback() {
+        @Override
+        public void onCompleted(final Exception ex) {
+            mActivity.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    mCloudMatchEventListener.onConnectionError(ex);
+                }
+            });
+        }
+    };
+
+    final WebSocket.StringCallback mStringCallback = new WebSocket.StringCallback() {
+        @Override
+        public void onStringAvailable(String s) {
+            mServerMessageHandler.onServerMessage(s);
+        }
+    };
+
+    final DataCallback mDataCallback = new DataCallback() {
+        @Override
+        public void onDataAvailable(DataEmitter emitter, ByteBufferList bb) {
+
+        }
+    };
+
+    final WritableCallback mWritableCallback = new WritableCallback() {
+        @Override
+        public void onWriteable() {
+
+        }
+    };
+
 };

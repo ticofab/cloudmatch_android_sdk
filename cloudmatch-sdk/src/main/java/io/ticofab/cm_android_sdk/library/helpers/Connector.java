@@ -25,7 +25,7 @@ import java.net.URISyntaxException;
 import io.ticofab.cm_android_sdk.library.consts.ServerConsts;
 
 /**
- * Helper to connect the CloudMatch instance to the backend.
+ * Helper to connectCloudMatch the CloudMatch instance to the backend.
  */
 public class Connector {
     final String CONNECTION_PARAM_APIKEY = "apiKey";

@@ -23,6 +23,6 @@ public class CloudMatchNotConnectedException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     public CloudMatchNotConnectedException() {
-        super("CloudMatch needs to be connected first. Use CloudMatch.connect().");
+        super("CloudMatch needs to be connected first. Use connectCloudMatch().");
     }
 }

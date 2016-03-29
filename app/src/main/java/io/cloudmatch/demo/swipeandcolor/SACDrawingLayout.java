@@ -32,6 +32,7 @@ import android.widget.RelativeLayout;
 import io.cloudmatch.demo.R;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
+import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
@@ -70,8 +71,7 @@ public class SACDrawingLayout extends RelativeLayout {
 
         mSwipeAllSidesView = (CloudMatchSwipeViewAllSides) findViewById(R.id.swipe_and_color_swipe_view);
         try {
-            mSwipeAllSidesView.initCloudMatch(activity, eventListener, locationProvider, cloudMatchViewInterface);
-            mSwipeAllSidesView.connect();
+            mSwipeAllSidesView.connectCloudMatch(activity, eventListener, locationProvider, cloudMatchViewInterface);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -106,7 +106,11 @@ public class SACDrawingLayout extends RelativeLayout {
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         // first of all, pass the touch to the CloudMatchView
-        mSwipeAllSidesView.onTouchEvent(event);
+        try {
+            mSwipeAllSidesView.onTouchEvent(event);
+        } catch (CloudMatchNotConnectedException e) {
+            // handle exception
+        }
 
         // then, take care of drawing the swipe on screen
         final float drawingX = event.getX();

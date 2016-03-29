@@ -44,6 +44,9 @@ android {
 }
 
 dependencies {
+    // websocket library
+    // https://github.com/koush/AndroidAsync
+    compile 'com.koushikdutta.async:androidasync:2.1.7'
 }
 
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'

@@ -18,7 +18,7 @@ package io.ticofab.cm_android_sdk.library.helpers;
 
 import android.location.Location;
 
-import com.codebutler.android_websockets.WebSocketClient;
+import com.koushikdutta.async.http.WebSocket;
 
 import org.json.JSONException;
 
@@ -35,10 +35,10 @@ import io.ticofab.cm_android_sdk.library.models.inputs.base.MatchInput;
  */
 public class Matcher {
 
-    final WebSocketClient mWSClient;
+    final WebSocket mWSClient;
     final LocationProvider mLocationProvider;
 
-    public Matcher(final WebSocketClient wsClient,
+    public Matcher(final WebSocket wsClient,
                    final LocationProvider locationProvider) {
         mWSClient = wsClient;
         mLocationProvider = locationProvider;
@@ -61,7 +61,7 @@ public class Matcher {
 
     void sendMatchRequest(final MatchInput matchInput) throws CloudMatchNotConnectedException,
             CloudMatchNotInitializedException {
-        if (mWSClient == null || !mWSClient.isConnected()) {
+        if (mWSClient == null || !mWSClient.isOpen()) {
             throw new CloudMatchNotConnectedException();
         }
 

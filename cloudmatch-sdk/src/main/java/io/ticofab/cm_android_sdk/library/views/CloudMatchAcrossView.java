@@ -25,6 +25,7 @@ import android.view.MotionEvent;
 import io.ticofab.cm_android_sdk.library.consts.Areas;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
+import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchViewInterfaceNotSetException;
 import io.ticofab.cm_android_sdk.library.helpers.MovementHelper;
 import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
@@ -51,7 +52,8 @@ public abstract class CloudMatchAcrossView extends CloudMatchView {
     private PointF mStartPoint;
 
     @Override
-    public boolean onTouchEvent(final MotionEvent event) throws CloudMatchViewInterfaceNotSetException {
+    public boolean onTouchEvent(final MotionEvent event)
+            throws CloudMatchViewInterfaceNotSetException, CloudMatchNotConnectedException {
         if (mClientInterface == null) {
             throw new CloudMatchViewInterfaceNotSetException();
         }
@@ -89,7 +91,12 @@ public abstract class CloudMatchAcrossView extends CloudMatchView {
 
     private void sendMatchRequest(final Areas areaStart,
                                   final Areas areaEnd,
-                                  final GesturePurposeInfo gesturePurposeInfo) {
+                                  final GesturePurposeInfo gesturePurposeInfo)
+            throws CloudMatchNotConnectedException {
+
+        if (mMatcher == null) {
+            throw new CloudMatchNotConnectedException();
+        }
 
         final String equalityParam = mClientInterface.getEqualityParam();
 
