@@ -52,12 +52,10 @@ import java.util.Random;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.cloudmatch.demo.R;
-import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
-import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchPinchViewHorizontal;
 
 /*
@@ -327,16 +325,6 @@ public class PADActivity extends FragmentActivity implements
         public boolean isGestureValid() {
             // only attempt to connect if we're not already connected
             return TextUtils.isEmpty(mGroupId);
-        }
-
-        @Override
-        public String getEqualityParam() {
-            return null;
-        }
-
-        @Override
-        public GesturePurposeInfo getGesturePurposeInfo() {
-            return new GesturePurposeInfo(GesturePurpose.group_creation);
         }
     };
 

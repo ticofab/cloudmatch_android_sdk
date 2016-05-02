@@ -30,13 +30,11 @@ import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
 import io.cloudmatch.demo.R;
-import io.ticofab.cm_android_sdk.library.consts.GesturePurpose;
 import io.ticofab.cm_android_sdk.library.consts.MovementType;
 import io.ticofab.cm_android_sdk.library.consts.Movements;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
-import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
-import io.ticofab.cm_android_sdk.library.models.inputs.GesturePurposeInfo;
 import io.ticofab.cm_android_sdk.library.views.CloudMatchSwipeViewAllSides;
 
 /*
@@ -191,16 +189,6 @@ public class SACDrawingLayout extends RelativeLayout {
         @Override
         public boolean isGestureValid() {
             return true;
-        }
-
-        @Override
-        public String getEqualityParam() {
-            return null;
-        }
-
-        @Override
-        public GesturePurposeInfo getGesturePurposeInfo() {
-            return new GesturePurposeInfo(GesturePurpose.group_creation);
         }
     };
 }
