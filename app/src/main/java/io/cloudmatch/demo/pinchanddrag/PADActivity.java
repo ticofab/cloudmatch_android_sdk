@@ -223,7 +223,6 @@ public class PADActivity extends FragmentActivity implements
         // initializes the CloudMatch. In this case we also immediately connect,
         // but it could be done also at a different stage.
         try {
-            // TODO: implement LocationProvider
             mPinchView.initCloudMatch(this,
                     new PADServerEventListener(this, mMatchedInterface, mDeliveryInterface),
                     new LocationProvider() {
