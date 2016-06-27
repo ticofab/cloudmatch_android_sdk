@@ -54,6 +54,10 @@ public class StringHelper {
                 value = bundle.getString(key);
             }
         }
+        if (value == null) {
+            String msg = "It seems like you forgot api key & app id in your Manifest!";
+            throw new PackageManager.NameNotFoundException(msg);
+        }
         return value;
     }
 }

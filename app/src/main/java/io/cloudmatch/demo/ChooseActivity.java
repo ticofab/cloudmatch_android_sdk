@@ -22,6 +22,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.security.ProviderInstaller;
+
 import io.cloudmatch.demo.pinchanddrag.PADActivity;
 import io.cloudmatch.demo.pinchandview.PAVActivity;
 import io.cloudmatch.demo.swipeandcolor.SACActivity;
@@ -35,6 +40,7 @@ public class ChooseActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose);
+        updateAndroidSecurityProvider();
     }
 
     // from view
@@ -60,5 +66,18 @@ public class ChooseActivity extends Activity {
         final FragmentManager fm = getFragmentManager();
         final AboutDialogFragment aboutDialog = new AboutDialogFragment();
         aboutDialog.show(fm, "aboutDialog");
+    }
+
+    // needed to make the SSL protocol works on older phones too
+    private void updateAndroidSecurityProvider() {
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Thrown when Google Play Services is not installed, up-to-date, or enabled
+            // Show dialog to allow users to install, update, or otherwise enable Google Play services.
+            GooglePlayServicesUtil.getErrorDialog(e.getConnectionStatusCode(), this, 0);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
     }
 }
