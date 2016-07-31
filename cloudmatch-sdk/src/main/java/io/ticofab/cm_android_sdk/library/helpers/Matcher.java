@@ -49,7 +49,7 @@ public class Matcher {
     }
 
     public void sendGroupCreateMatchRequest(final GroupCreateMatchInput matchInput)
-            throws LocationServicesUnavailableException {
+            throws LocationServicesUnavailableException, CloudMatchNotConnectedException {
 
         // initialize match request with mandatory stuff
         Location location = mLocationProvider.getLocation();
