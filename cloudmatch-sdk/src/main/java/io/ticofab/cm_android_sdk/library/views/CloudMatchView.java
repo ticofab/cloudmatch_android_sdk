@@ -40,9 +40,9 @@ import io.ticofab.cm_android_sdk.library.helpers.Connector;
 import io.ticofab.cm_android_sdk.library.helpers.Matcher;
 import io.ticofab.cm_android_sdk.library.helpers.StringHelper;
 import io.ticofab.cm_android_sdk.library.helpers.UniqueIDHelper;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
-import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.listeners.CloudMatchListener;
 import io.ticofab.cm_android_sdk.library.models.inputs.DeliveryInput;
 
@@ -120,7 +120,11 @@ public abstract class CloudMatchView extends View {
      * @throws LocationServicesUnavailableException
      * @throws CloudMatchNotInitializedException
      */
-    public void connect() {
+    public void connect() throws CloudMatchNotInitializedException {
+        if (mWSClient == null) {
+            throw new CloudMatchNotInitializedException();
+        }
+
         if (mWSClient.isConnected()) {
             mWSClient.disconnect();
         }
@@ -154,7 +158,11 @@ public abstract class CloudMatchView extends View {
     public void deliverPayload(final ArrayList<Integer> recipients,
                                final String payload,
                                final String groupId,
-                               final String tag) throws CloudMatchNotConnectedException {
+                               final String tag) throws CloudMatchNotConnectedException, CloudMatchNotInitializedException {
+        if (mWSClient == null) {
+            throw new CloudMatchNotInitializedException();
+        }
+
         if (!mWSClient.isConnected()) {
             throw new CloudMatchNotConnectedException();
         }
