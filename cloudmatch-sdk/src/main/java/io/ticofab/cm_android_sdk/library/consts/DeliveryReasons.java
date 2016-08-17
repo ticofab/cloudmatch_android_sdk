@@ -20,5 +20,5 @@ package io.ticofab.cm_android_sdk.library.consts;
  * Possible reasons used in a DeliveryOutcome response.
  */
 public enum DeliveryReasons {
-    unknown, notDelivered
+    unknown, notDelivered, notPartOfThisGroup
 }
