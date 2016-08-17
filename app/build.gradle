@@ -23,7 +23,7 @@ dependencies {
     // You should use the commented out line below in your application.
     // We depend on the source directly here so that development is easier.
     compile project(':cloudmatch-sdk')
-    // compile 'io.ticofab:cloudmatch-sdk:3.1.1'
+    // compile 'io.ticofab:cloudmatch-sdk:3.2.1'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
