@@ -114,6 +114,13 @@ public abstract class CloudMatchView extends View {
         }
     }
 
+    public boolean isInitialized() {
+        return mWSClient != null &&
+                mActivity != null &&
+                mListener != null &&
+                mClientInterface != null;
+    }
+
     /**
      * Connects the CloudMatch. You need to call init() first.
      *
@@ -129,6 +136,10 @@ public abstract class CloudMatchView extends View {
             mWSClient.disconnect();
         }
         mWSClient.connect();
+    }
+
+    public boolean isConnected() {
+        return mWSClient != null && mWSClient.isConnected();
     }
 
     /**
