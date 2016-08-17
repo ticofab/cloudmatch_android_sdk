@@ -34,15 +34,14 @@ import io.ticofab.cm_android_sdk.library.consts.Criteria;
 import io.ticofab.cm_android_sdk.library.consts.ServerConsts;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotConnectedException;
 import io.ticofab.cm_android_sdk.library.exceptions.CloudMatchNotInitializedException;
-import io.ticofab.cm_android_sdk.library.exceptions.LocationServicesUnavailableException;
 import io.ticofab.cm_android_sdk.library.handlers.ServerMessagesHandler;
 import io.ticofab.cm_android_sdk.library.helpers.Connector;
 import io.ticofab.cm_android_sdk.library.helpers.Matcher;
 import io.ticofab.cm_android_sdk.library.helpers.StringHelper;
 import io.ticofab.cm_android_sdk.library.helpers.UniqueIDHelper;
+import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchViewInterface;
 import io.ticofab.cm_android_sdk.library.interfaces.LocationProvider;
-import io.ticofab.cm_android_sdk.library.interfaces.CloudMatchEventListener;
 import io.ticofab.cm_android_sdk.library.listeners.CloudMatchListener;
 import io.ticofab.cm_android_sdk.library.models.inputs.DeliveryInput;
 
@@ -84,7 +83,7 @@ public abstract class CloudMatchView extends View {
      * @param clientListener   Implementation of the OnCloudMatchEvent interface. Will be used to notify any network communication.
      * @param locationProvider Implementation of LocationProvider, needs to serve coordinates when needed
      * @param clientInterface  Implementation of the CloudMatchViewInterface
-     * @throws PackageManager.NameNotFoundException
+     * @throws PackageManager.NameNotFoundException Exception thrown if credentials were not found.
      */
     public void initCloudMatch(final Activity activity,
                                final CloudMatchEventListener clientListener,
@@ -114,17 +113,31 @@ public abstract class CloudMatchView extends View {
         }
     }
 
+    public boolean isInitialized() {
+        return mWSClient != null &&
+                mActivity != null &&
+                mListener != null &&
+                mClientInterface != null;
+    }
+
     /**
      * Connects the CloudMatch. You need to call init() first.
      *
-     * @throws LocationServicesUnavailableException
-     * @throws CloudMatchNotInitializedException
+     * @throws CloudMatchNotInitializedException Thrown if this method is invoked before initialization.
      */
-    public void connect() {
+    public void connect() throws CloudMatchNotInitializedException {
+        if (mWSClient == null) {
+            throw new CloudMatchNotInitializedException();
+        }
+
         if (mWSClient.isConnected()) {
             mWSClient.disconnect();
         }
         mWSClient.connect();
+    }
+
+    public boolean isConnected() {
+        return mWSClient != null && mWSClient.isConnected();
     }
 
     /**
@@ -133,7 +146,7 @@ public abstract class CloudMatchView extends View {
      * @param payload The delivery payload.
      * @param groupId The group to which send the payload.
      * @param tag     Optional tag for this delivery. Can be null.
-     * @throws CloudMatchNotConnectedException
+     * @throws CloudMatchNotConnectedException Thrown if this method is invoked while CloudMatch is not connected.
      */
     public void deliverPayloadToGroup(final String payload,
                                       final String groupId,
@@ -148,13 +161,18 @@ public abstract class CloudMatchView extends View {
      * @param recipients The devices that will receive this payload
      * @param payload    The payload to deliver
      * @param groupId    The group id
-     * @throws CloudMatchNotConnectedException
+     * @param tag        A string identifying this delivery
+     * @throws CloudMatchNotConnectedException Thrown if this method is invoked while CloudMatch is not connected.
      */
     // TODO: this should forward to a "deliverer" or something
     public void deliverPayload(final ArrayList<Integer> recipients,
                                final String payload,
                                final String groupId,
-                               final String tag) throws CloudMatchNotConnectedException {
+                               final String tag) throws CloudMatchNotConnectedException, CloudMatchNotInitializedException {
+        if (mWSClient == null) {
+            throw new CloudMatchNotInitializedException();
+        }
+
         if (!mWSClient.isConnected()) {
             throw new CloudMatchNotConnectedException();
         }

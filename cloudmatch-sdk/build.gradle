@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/ticofab/cloudmatch_android_sdk'
     gitUrl = 'https://github.com/ticofab/cloudmatch_android_sdk.git'
 
-    libraryVersion = '3.1.1'
+    libraryVersion = '3.2.0'
 
     developerId = 'ticofab'
     developerName = 'Fabio Tiriticco'
@@ -26,14 +26,14 @@ ext {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 22
-        versionCode 4
-        versionName "3.1.1"
+        versionCode 5
+        versionName "3.2.0"
     }
     buildTypes {
         release {
