@@ -13,7 +13,7 @@ Include the SDK:
 Grab via gradle:
 
 ```groovy
-compile 'io.ticofab:cloudmatch-android-sdk:3.0.0'
+compile 'io.ticofab:cloudmatch-android-sdk:3.2.1'
 ```
 
 Sample app:
